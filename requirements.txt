@@ -1,0 +1,10 @@
+# PYPI :
+# python setup.py register
+# python setup.py sdist upload
+
+# gevent stack
+greenlet
+gevent
+
+# date
+pytz
