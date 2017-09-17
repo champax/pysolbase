@@ -474,7 +474,7 @@ class SolBase(object):
             syslog = None
             if log_to_syslog:
                 try:
-                    from pysol_base.SysLogger import SysLogger
+                    from pysolbase.SysLogger import SysLogger
 
                     syslog = SysLogger(log_callback=log_callback)
                     syslog.setLevel(logging.getLevelName(log_level))

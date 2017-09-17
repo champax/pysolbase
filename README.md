@@ -1,11 +1,11 @@
-pysol_base
+pysolbase
 ============
 
 Welcome to pysol
 
 Copyright (C) 2013/2017 Laurent Labatut / Laurent Champagnac
 
-pysol_base is a set of python helpers to ease development.
+pysolbase is a set of python helpers to ease development.
 
 It is gevent (co-routines) based.
 

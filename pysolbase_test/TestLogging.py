@@ -28,8 +28,8 @@ import unittest
 import os
 from os.path import dirname, abspath
 
-from pysol_base.FileUtility import FileUtility
-from pysol_base.SolBase import SolBase
+from pysolbase.FileUtility import FileUtility
+from pysolbase.SolBase import SolBase
 
 
 logger = logging.getLogger("TestBase")

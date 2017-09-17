@@ -26,7 +26,7 @@ import logging
 import os
 import codecs
 
-from pysol_base.SolBase import SolBase
+from pysolbase.SolBase import SolBase
 
 SolBase.logging_init()
 logger = logging.getLogger("FileUtility")

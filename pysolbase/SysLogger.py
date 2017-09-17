@@ -27,7 +27,7 @@ import socket
 
 from gevent import GreenletExit
 
-from pysol_base.SolBase import SolBase
+from pysolbase.SolBase import SolBase
 
 
 class SysLogger(SysLogHandler):

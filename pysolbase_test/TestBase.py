@@ -26,8 +26,8 @@ import logging
 import sys
 import unittest
 
-from pysol_base.SolBase import SolBase
-from pysol_base_test.CrashMe import CrashMe
+from pysolbase.SolBase import SolBase
+from pysolbase_test.CrashMe import CrashMe
 
 logger = logging.getLogger("TestBase")
 
@@ -188,7 +188,7 @@ class TestBase(unittest.TestCase):
 
             self.assertGreaterEqual(buf.find("e.cls:[Exception]"), 0)
             self.assertGreaterEqual(buf.find("e.str:[CrashException]"), 0)
-            seek_buf = "/pysol_base_test/CrashMe.py@" + str(CrashMe._lineException) + " "
+            seek_buf = "/pysolbase_test/CrashMe.py@" + str(CrashMe._lineException) + " "
             self.assertGreaterEqual(buf.find(seek_buf), 0, seek_buf)
-            seek_buf = "/pysol_base_test/TestBase.py@" + str(local_line_exception) + " "
+            seek_buf = "/pysolbase_test/TestBase.py@" + str(local_line_exception) + " "
             self.assertGreaterEqual(buf.find(seek_buf), 0, seek_buf)
