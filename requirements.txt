@@ -1,6 +1,6 @@
 # PYPI :
-# python setup.py register
-# python setup.py sdist upload
+# workon pysolbase
+# python setup.py sdist && twine upload dist/*; rm -rf './dist'; rm -rf pysol*.egg-info; echo "OVER"
 
 # gevent stack
 greenlet
