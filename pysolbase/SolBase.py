@@ -37,7 +37,9 @@ from gevent import monkey
 import gevent
 from datetime import datetime
 
-logger = logging.getLogger("SolBase")
+from pysolbase import integer_types
+
+logger = logging.getLogger(__name__)
 lifecyclelogger = logging.getLogger("lifecycle")
 
 
@@ -294,11 +296,11 @@ class SolBase(object):
             try:
                 ex_buf = str(e)
             except UnicodeEncodeError:
-                ex_buf = str(repr(unicode(e)))
+                ex_buf = repr(str(e))
             except Exception as e:
                 logger.error("Exception, e=%s", e)
                 raise
-            out_buffer += ", e.str:[{0}]".format(ex_buf)
+            out_buffer += ", e.bytes:[{0}]".format(ex_buf)
 
             # Traceback
             si = sys.exc_info()
@@ -336,7 +338,7 @@ class SolBase(object):
             cur_idx = 0
             out_buffer += ", e.cs=["
             for tu in raw_frame:
-                line = str(tu[1])
+                line = tu[1]
                 cur_file = tu[0]
                 method = tu[2]
 
@@ -565,27 +567,27 @@ class SolBase(object):
     @classmethod
     def binary_to_unicode(cls, bin_buf, encoding="utf-8"):
         """
-        Binary buffer to unicode, using the specified encoding
+        Binary buffer to str, using the specified encoding
         :param bin_buf: Binary buffer
-        :type bin_buf: str
+        :type bin_buf: bytes
         :param encoding: Encoding to use
         :type encoding: str
-        :return unicode
-        :rtype unicode
+        :return str
+        :rtype str
         """
 
-        return unicode(bin_buf, encoding)
+        return bin_buf.decode(encoding)
 
     @classmethod
     def unicode_to_binary(cls, unicode_buf, encoding="utf-8"):
         """
         Unicode to binary buffer, using the specified encoding
         :param unicode_buf: String to convert.
-        :type unicode_buf: unicode
+        :type unicode_buf: str
         :param encoding: Encoding to use.
         :type encoding: str
-        :return str
-        :rtype str
+        :return bytes
+        :rtype bytes
         """
 
         return unicode_buf.encode(encoding)
@@ -631,21 +633,6 @@ class SolBase(object):
             return int(v)
 
     @classmethod
-    def to_long(cls, v):
-        """
-        Convert to long
-        :param v: long,str
-        :type v: long,str
-        :return: long
-        :rtype long
-        """
-
-        if isinstance(v, long):
-            return v
-        else:
-            return long(v)
-
-    @classmethod
     def to_bool(cls, v):
         """
         Convert to bool
@@ -686,23 +673,23 @@ class SolBase(object):
     @classmethod
     def is_string(cls, my_string):
         """
-        Return true if the provided my_string is a str or an unicode.
+        Return true if the provided my_string is a bytes or an str.
         :param cls: Our class.
         :param my_string: A String.
-        :return: Return true if the provided my_string is a str or an unicode. False otherwise.
+        :return: Return true if the provided my_string is a bytes or an str. False otherwise.
         """
         if my_string is None:
             return False
         else:
-            return isinstance(my_string, (str, unicode))
+            return isinstance(my_string, (bytes, str))
 
     @classmethod
     def is_string_not_empty(cls, my_string):
         """
-        Return true if the provided my_string is a str or an unicode, not empty.
+        Return true if the provided my_string is a bytes or an str, not empty.
         :param cls: Our class.
         :param my_string: A String.
-        :return: Return true if the provided my_string is a str or an unicode, not empty.. False otherwise.
+        :return: Return true if the provided my_string is a bytes or an str, not empty.. False otherwise.
         """
         if not SolBase.is_string(my_string):
             return False
@@ -736,7 +723,7 @@ class SolBase(object):
         elif SolBase.is_bool(my_int):
             return False
         else:
-            return isinstance(my_int, (int, long))
+            return isinstance(my_int, integer_types)
 
     @classmethod
     def get_current_pid_as_string(cls):

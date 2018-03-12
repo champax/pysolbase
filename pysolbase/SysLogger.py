@@ -30,6 +30,7 @@ from gevent import GreenletExit
 from pysolbase.SolBase import SolBase
 
 
+# noinspection PyPep8
 class SysLogger(SysLogHandler):
     """
     Sys log handler (will format and emit logs toward rsyslog)
@@ -59,7 +60,7 @@ class SysLogger(SysLogHandler):
         """
         Notify log to callback if set (unittest purpose)
         :param msg: Log message
-        :type msg: unicode,str
+        :type msg: str,bytes
         """
         # noinspection PyBroadException
         try:
@@ -85,16 +86,18 @@ class SysLogger(SysLogHandler):
             cn = SolBase.get_compo_name()
 
             # We append the machine+component name at the beginning
-            if isinstance(msg, unicode):
-                msg = u"{0} | {1} | {2}".format(SolBase.get_machine_name(), cn, msg)
-                msg = msg.encode('utf-8')
-            else:
-                msg = "{0} | {1} | {2}".format(SolBase.get_machine_name(), cn, msg)
+            msg = u"{0} | {1} | {2}".format(SolBase.get_machine_name(), cn, msg)
+            msg = msg.encode('utf-8')
 
             # Add priority + facility (int)
             priority = '<%d>' % self.encodePriority(self.facility, self.mapPriority(record.levelname))
+            priority = priority.encode('utf-8')
+
+            # Cn
+            cn = cn.encode('utf-8')
+
             # noinspection PyAugmentAssignment
-            msg = priority + cn + ": " + msg
+            msg = priority + cn + b": " + msg
 
             # Notify
             self.notify_log(msg)
