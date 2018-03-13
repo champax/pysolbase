@@ -470,7 +470,7 @@ class SolBase(object):
                     cf.setLevel(logging.getLevelName(log_level))
                     cf.setFormatter(f)
                 else:
-                    logger.warn("Invalid log_to_file_mode=%s", log_to_file_mode)
+                    logger.warning("Invalid log_to_file_mode=%s", log_to_file_mode)
 
             # Syslog handler
             syslog = None
