@@ -37,7 +37,7 @@ from gevent import monkey
 import gevent
 from datetime import datetime
 
-from pysolbase import integer_types
+from pysolbase import integer_types, string_types
 
 logger = logging.getLogger(__name__)
 lifecyclelogger = logging.getLogger("lifecycle")
@@ -669,32 +669,6 @@ class SolBase(object):
         :return: The path separator (string)
         """
         return os.sep
-
-    @classmethod
-    def is_string(cls, my_string):
-        """
-        Return true if the provided my_string is a bytes or an str.
-        :param cls: Our class.
-        :param my_string: A String.
-        :return: Return true if the provided my_string is a bytes or an str. False otherwise.
-        """
-        if my_string is None:
-            return False
-        else:
-            return isinstance(my_string, (bytes, str))
-
-    @classmethod
-    def is_string_not_empty(cls, my_string):
-        """
-        Return true if the provided my_string is a bytes or an str, not empty.
-        :param cls: Our class.
-        :param my_string: A String.
-        :return: Return true if the provided my_string is a bytes or an str, not empty.. False otherwise.
-        """
-        if not SolBase.is_string(my_string):
-            return False
-        else:
-            return len(my_string) > 0
 
     @classmethod
     def is_bool(cls, my_bool):
