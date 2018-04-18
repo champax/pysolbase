@@ -21,14 +21,11 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 # ===============================================================================
 """
-import inspect
 import logging
 import unittest
 
-from pysolbase import max_int
 from pysolbase.PlatformTools import PlatformTools
 from pysolbase.SolBase import SolBase
-from pysolbase_test.CrashMe import CrashMe
 
 logger = logging.getLogger(__name__)
 

@@ -22,22 +22,22 @@
 # ===============================================================================
 """
 import ast
-import platform
-import time
 import logging
+import platform
+import sys
+import time
+import traceback
+from datetime import datetime
 from logging.config import fileConfig
 from logging.handlers import WatchedFileHandler, TimedRotatingFileHandler
 from threading import Lock
-import traceback
-import sys
 
+import gevent
 import os
 import pytz
 from gevent import monkey
-import gevent
-from datetime import datetime
 
-from pysolbase import integer_types, string_types
+from pysolbase import integer_types
 
 logger = logging.getLogger(__name__)
 lifecyclelogger = logging.getLogger("lifecycle")
