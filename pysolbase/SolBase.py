@@ -710,3 +710,33 @@ class SolBase(object):
             return "pid={0}, ppid={1}".format(os.getpid(), os.getppid())
         except AttributeError:
             return "pid={0}".format(os.getpid())
+
+    # =====================================================
+    # HELPER FOR SOCKET CLOSING
+    # =====================================================
+
+    @classmethod
+    def safe_close_socket(cls, soc_to_close):
+        """
+        Safe close a socket
+        :param soc_to_close: socket
+        :type soc_to_close: socket.socket
+        """
+
+        if soc_to_close is None:
+            return
+
+        try:
+            soc_to_close.shutdown(2)
+        except Exception as e:
+            logger.debug("Socket shutdown ex=%s", SolBase.extostr(e))
+
+        try:
+            soc_to_close.close()
+        except Exception as e:
+            logger.debug("Socket close ex=%s", SolBase.extostr(e))
+
+        try:
+            del soc_to_close
+        except Exception as e:
+            logger.debug("Socket del ex=%s", SolBase.extostr(e))
