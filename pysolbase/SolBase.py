@@ -29,7 +29,7 @@ import time
 import traceback
 from datetime import datetime
 from logging.config import fileConfig
-from logging.handlers import WatchedFileHandler, TimedRotatingFileHandler
+from logging.handlers import WatchedFileHandler, TimedRotatingFileHandler, SysLogHandler
 from threading import Lock
 
 import gevent
@@ -411,7 +411,10 @@ class SolBase(object):
 
     @classmethod
     def logging_init(cls, log_level="INFO", force_reset=False, log_callback=None,
-                     log_to_file=None, log_to_syslog=True, log_to_console=True,
+                     log_to_file=None,
+                     log_to_syslog=True,
+                     log_to_syslog_facility=SysLogHandler.LOG_LOCAL0,
+                     log_to_console=True,
                      log_to_file_mode="watched_file"):
         """
         Initialize logging sub system with default settings (console, pre-formatted output)
@@ -425,6 +428,8 @@ class SolBase(object):
         :type log_to_file: str,None
         :pram log_to_syslog: If specified, log to syslog
         :type log_to_syslog: bool
+        :param log_to_syslog_facility: Syslog facility.
+        :type log_to_syslog_facility: int
         :param log_to_file_mode: str "watched_file" for WatchedFileHandler, "time_file" for TimedRotatingFileHandler (or time_file_seconds for unittest)
         :type log_to_file_mode: str
         :param log_callback: Callback for unittest
@@ -478,7 +483,7 @@ class SolBase(object):
                 try:
                     from pysolbase.SysLogger import SysLogger
 
-                    syslog = SysLogger(log_callback=log_callback)
+                    syslog = SysLogger(log_callback=log_callback, facility=log_to_syslog_facility)
                     syslog.setLevel(logging.getLevelName(log_level))
                     syslog.setFormatter(f)
                 except Exception as e:
