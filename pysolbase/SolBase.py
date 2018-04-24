@@ -481,7 +481,7 @@ class SolBase(object):
                 try:
                     from pysolbase.SysLogger import SysLogger
 
-                    syslog = SysLogger(log_callback=log_callback, log_to_syslog_facility=log_to_syslog_facility)
+                    syslog = SysLogger(log_callback=log_callback, facility=log_to_syslog_facility)
                     syslog.setLevel(logging.getLevelName(log_level))
                     syslog.setFormatter(f)
                 except Exception as e:
