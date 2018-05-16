@@ -452,7 +452,8 @@ class SolBase(object):
             # Console handler
             c = None
             if log_to_console:
-                c = logging.StreamHandler(sys.stdout)
+                # This can be override by unittest, we use __stdout__
+                c = logging.StreamHandler(sys.__stdout__)
                 c.setLevel(logging.getLevelName(log_level))
                 c.setFormatter(f)
 
