@@ -6,5 +6,8 @@
 greenlet
 gevent
 
+# distro
+distro
+
 # date
 pytz

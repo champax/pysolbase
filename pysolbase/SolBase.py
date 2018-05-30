@@ -23,18 +23,18 @@
 """
 import ast
 import logging
+import os
 import platform
 import sys
 import time
 import traceback
-from datetime import datetime
 from logging.config import fileConfig
 from logging.handlers import WatchedFileHandler, TimedRotatingFileHandler, SysLogHandler
 from threading import Lock
 
 import gevent
-import os
 import pytz
+from datetime import datetime
 from gevent import monkey
 
 from pysolbase import integer_types
@@ -74,8 +74,8 @@ class SolBase(object):
     def mscurrent(cls):
         """
         Return current millis since epoc
-        :return int
-        :rtype int
+        :return float
+        :rtype float
         """
         return time.time() * 1000.0
 
@@ -91,10 +91,10 @@ class SolBase(object):
         :rtype float
         """
 
-        if ms_end:
-            return ms_end - ms_start
-        else:
-            return cls.mscurrent() - ms_start
+        if not ms_end:
+            ms_end = cls.mscurrent()
+
+        return ms_end - ms_start
 
     @classmethod
     def datecurrent(cls, erase_mode=0):
@@ -126,14 +126,12 @@ class SolBase(object):
         :rtype float
         """
 
-        # Get delta
-        if dt_end:
-            # noinspection PyUnresolvedReferences
-            delta = dt_end - dt_start
-        else:
-            # noinspection PyTypeChecker
-            delta = cls.datecurrent() - dt_start
+        # Fix
+        if not dt_end:
+            dt_end = cls.datecurrent()
 
+        # Get delta
+        delta = dt_end - dt_start
         return ((delta.days * 86400 + delta.seconds) * 1000) + (delta.microseconds * 0.001)
 
     # ==========================================
@@ -264,7 +262,10 @@ class SolBase(object):
         :type sleep_ms: int
         :return Nothing.
         """
-        gevent.sleep(sleep_ms * 0.001)
+        ms = sleep_ms * 0.001
+
+        # gevent 1.3 : ms is not fully respected (100 can be 80-100)
+        gevent.sleep(ms)
 
     # ===============================
     # EXCEPTION HELPER
