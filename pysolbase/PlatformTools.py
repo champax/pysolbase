@@ -181,7 +181,7 @@ class PlatformTools(object):
             return "windows"
 
         # Fallback
-        logger.warning("Unknown distribution, fallback debian, got detected_dist=%s, cur_dist=%s, cur_linux_distribution=%s", detected_dist, cur_dist, cur_linux_distribution)
+        logger.warning("Unknown distribution, fallback debian, got detected_dist=%s, cur_linux_distribution=%s", detected_dist, cur_linux_distribution)
         return "debian"
 
     @classmethod
