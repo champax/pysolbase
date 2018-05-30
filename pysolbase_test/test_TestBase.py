@@ -23,13 +23,13 @@
 """
 import inspect
 import logging
-import sys
 import unittest
 
+from pysolbase import max_int
 from pysolbase.SolBase import SolBase
 from pysolbase_test.CrashMe import CrashMe
 
-logger = logging.getLogger("TestBase")
+logger = logging.getLogger(__name__)
 
 
 class TestBase(unittest.TestCase):
@@ -89,6 +89,7 @@ class TestBase(unittest.TestCase):
 
         ms = SolBase.mscurrent()
         SolBase.sleep(100)
+        # Gevent 1.3 : this is buggy (may be related to https://github.com/gevent/gevent/issues/1227)
         self.assertGreaterEqual(SolBase.msdiff(ms), 100)
         self.assertLessEqual(SolBase.msdiff(ms), 200)
 
@@ -106,6 +107,7 @@ class TestBase(unittest.TestCase):
 
         dt = SolBase.datecurrent()
         SolBase.sleep(100)
+        # Gevent 1.3 : this is buggy (may be related to https://github.com/gevent/gevent/issues/1227)
         self.assertGreaterEqual(SolBase.datediff(dt), 100)
         self.assertLessEqual(SolBase.datediff(dt), 200)
 
@@ -120,14 +122,6 @@ class TestBase(unittest.TestCase):
         self.assertEqual(SolBase.to_int("-10"), -10)
         self.assertIsInstance(SolBase.to_int(10), int)
         self.assertRaises(Exception, SolBase.to_int, "aaa")
-
-        self.assertEqual(SolBase.to_long(10L), 10L)
-        self.assertEqual(SolBase.to_long("10"), 10L)
-        self.assertEqual(SolBase.to_long(-10L), -10L)
-        self.assertEqual(SolBase.to_long("-10"), -10L)
-        self.assertEqual(SolBase.to_long("10"), 10L)
-        self.assertIsInstance(SolBase.to_long(10), long)
-        self.assertRaises(Exception, SolBase.to_long, "aaa")
 
         self.assertEqual(SolBase.to_bool(True), True)
         self.assertEqual(SolBase.to_bool(False), False)
@@ -148,15 +142,15 @@ class TestBase(unittest.TestCase):
 
         # Misc
         logger.info("Class=%s", delay_class)
-        d = delay_class("dummyName", [0, 10, sys.maxint])
+        d = delay_class("dummyName", [0, 10, max_int])
 
-        d.put(0, 05)
-        d.put(9, 02)
+        d.put(0, 5)
+        d.put(9, 2)
         d.put(10, 15)
-        d.put(19, 01)
-        d.put(sys.maxint, 3)
+        d.put(19, 1)
+        d.put(max_int, 3)
 
-        self.assertEqual(d._sorted_dict[0].get(), 07)
+        self.assertEqual(d._sorted_dict[0].get(), 7)
         self.assertEqual(d._sorted_dict[10].get(), 19)
 
         d.log()
@@ -187,8 +181,8 @@ class TestBase(unittest.TestCase):
             logger.info("e=%s", buf)
 
             self.assertGreaterEqual(buf.find("e.cls:[Exception]"), 0)
-            self.assertGreaterEqual(buf.find("e.str:[CrashException]"), 0)
+            self.assertGreaterEqual(buf.find("e.bytes:[CrashException]"), 0)
             seek_buf = "/pysolbase_test/CrashMe.py@" + str(CrashMe._lineException) + " "
             self.assertGreaterEqual(buf.find(seek_buf), 0, seek_buf)
-            seek_buf = "/pysolbase_test/TestBase.py@" + str(local_line_exception) + " "
+            seek_buf = "/pysolbase_test/test_TestBase.py@" + str(local_line_exception) + " "
             self.assertGreaterEqual(buf.find(seek_buf), 0, seek_buf)

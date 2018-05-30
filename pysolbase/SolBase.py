@@ -22,22 +22,24 @@
 # ===============================================================================
 """
 import ast
-import platform
-import time
 import logging
+import os
+import platform
+import sys
+import time
+import traceback
 from logging.config import fileConfig
 from logging.handlers import WatchedFileHandler, TimedRotatingFileHandler, SysLogHandler
 from threading import Lock
-import traceback
-import sys
 
-import os
-import pytz
-from gevent import monkey
 import gevent
+import pytz
 from datetime import datetime
+from gevent import monkey
 
-logger = logging.getLogger("SolBase")
+from pysolbase import integer_types
+
+logger = logging.getLogger(__name__)
 lifecyclelogger = logging.getLogger("lifecycle")
 
 
@@ -72,8 +74,8 @@ class SolBase(object):
     def mscurrent(cls):
         """
         Return current millis since epoc
-        :return int
-        :rtype int
+        :return float
+        :rtype float
         """
         return time.time() * 1000.0
 
@@ -89,10 +91,10 @@ class SolBase(object):
         :rtype float
         """
 
-        if ms_end:
-            return ms_end - ms_start
-        else:
-            return cls.mscurrent() - ms_start
+        if not ms_end:
+            ms_end = cls.mscurrent()
+
+        return ms_end - ms_start
 
     @classmethod
     def datecurrent(cls, erase_mode=0):
@@ -124,14 +126,12 @@ class SolBase(object):
         :rtype float
         """
 
-        # Get delta
-        if dt_end:
-            # noinspection PyUnresolvedReferences
-            delta = dt_end - dt_start
-        else:
-            # noinspection PyTypeChecker
-            delta = cls.datecurrent() - dt_start
+        # Fix
+        if not dt_end:
+            dt_end = cls.datecurrent()
 
+        # Get delta
+        delta = dt_end - dt_start
         return ((delta.days * 86400 + delta.seconds) * 1000) + (delta.microseconds * 0.001)
 
     # ==========================================
@@ -262,7 +262,10 @@ class SolBase(object):
         :type sleep_ms: int
         :return Nothing.
         """
-        gevent.sleep(sleep_ms * 0.001)
+        ms = sleep_ms * 0.001
+
+        # gevent 1.3 : ms is not fully respected (100 can be 80-100)
+        gevent.sleep(ms)
 
     # ===============================
     # EXCEPTION HELPER
@@ -294,11 +297,11 @@ class SolBase(object):
             try:
                 ex_buf = str(e)
             except UnicodeEncodeError:
-                ex_buf = str(repr(unicode(e)))
+                ex_buf = repr(str(e))
             except Exception as e:
                 logger.error("Exception, e=%s", e)
                 raise
-            out_buffer += ", e.str:[{0}]".format(ex_buf)
+            out_buffer += ", e.bytes:[{0}]".format(ex_buf)
 
             # Traceback
             si = sys.exc_info()
@@ -336,7 +339,7 @@ class SolBase(object):
             cur_idx = 0
             out_buffer += ", e.cs=["
             for tu in raw_frame:
-                line = str(tu[1])
+                line = tu[1]
                 cur_file = tu[0]
                 method = tu[2]
 
@@ -426,7 +429,7 @@ class SolBase(object):
         :type log_to_file: str,None
         :param log_to_syslog: If specified, log to syslog
         :type log_to_syslog: bool
-        :param log_to_syslog_facility: Syslog facility
+        :param log_to_syslog_facility: Syslog facility.
         :type log_to_syslog_facility: int
         :param log_to_file_mode: str "watched_file" for WatchedFileHandler, "time_file" for TimedRotatingFileHandler (or time_file_seconds for unittest)
         :type log_to_file_mode: str
@@ -474,7 +477,7 @@ class SolBase(object):
                     cf.setLevel(logging.getLevelName(log_level))
                     cf.setFormatter(f)
                 else:
-                    logger.warn("Invalid log_to_file_mode=%s", log_to_file_mode)
+                    logger.warning("Invalid log_to_file_mode=%s", log_to_file_mode)
 
             # Syslog handler
             syslog = None
@@ -571,27 +574,27 @@ class SolBase(object):
     @classmethod
     def binary_to_unicode(cls, bin_buf, encoding="utf-8"):
         """
-        Binary buffer to unicode, using the specified encoding
+        Binary buffer to str, using the specified encoding
         :param bin_buf: Binary buffer
-        :type bin_buf: str
+        :type bin_buf: bytes
         :param encoding: Encoding to use
         :type encoding: str
-        :return unicode
-        :rtype unicode
+        :return str
+        :rtype str
         """
 
-        return unicode(bin_buf, encoding)
+        return bin_buf.decode(encoding)
 
     @classmethod
     def unicode_to_binary(cls, unicode_buf, encoding="utf-8"):
         """
         Unicode to binary buffer, using the specified encoding
         :param unicode_buf: String to convert.
-        :type unicode_buf: unicode
+        :type unicode_buf: str
         :param encoding: Encoding to use.
         :type encoding: str
-        :return str
-        :rtype str
+        :return bytes
+        :rtype bytes
         """
 
         return unicode_buf.encode(encoding)
@@ -637,21 +640,6 @@ class SolBase(object):
             return int(v)
 
     @classmethod
-    def to_long(cls, v):
-        """
-        Convert to long
-        :param v: long,str
-        :type v: long,str
-        :return: long
-        :rtype long
-        """
-
-        if isinstance(v, long):
-            return v
-        else:
-            return long(v)
-
-    @classmethod
     def to_bool(cls, v):
         """
         Convert to bool
@@ -690,32 +678,6 @@ class SolBase(object):
         return os.sep
 
     @classmethod
-    def is_string(cls, my_string):
-        """
-        Return true if the provided my_string is a str or an unicode.
-        :param cls: Our class.
-        :param my_string: A String.
-        :return: Return true if the provided my_string is a str or an unicode. False otherwise.
-        """
-        if my_string is None:
-            return False
-        else:
-            return isinstance(my_string, (str, unicode))
-
-    @classmethod
-    def is_string_not_empty(cls, my_string):
-        """
-        Return true if the provided my_string is a str or an unicode, not empty.
-        :param cls: Our class.
-        :param my_string: A String.
-        :return: Return true if the provided my_string is a str or an unicode, not empty.. False otherwise.
-        """
-        if not SolBase.is_string(my_string):
-            return False
-        else:
-            return len(my_string) > 0
-
-    @classmethod
     def is_bool(cls, my_bool):
         """
         Return true if the provided my_bool is a boolean.
@@ -742,7 +704,7 @@ class SolBase(object):
         elif SolBase.is_bool(my_int):
             return False
         else:
-            return isinstance(my_int, (int, long))
+            return isinstance(my_int, integer_types)
 
     @classmethod
     def get_current_pid_as_string(cls):
@@ -755,3 +717,33 @@ class SolBase(object):
             return "pid={0}, ppid={1}".format(os.getpid(), os.getppid())
         except AttributeError:
             return "pid={0}".format(os.getpid())
+
+    # =====================================================
+    # HELPER FOR SOCKET CLOSING
+    # =====================================================
+
+    @classmethod
+    def safe_close_socket(cls, soc_to_close):
+        """
+        Safe close a socket
+        :param soc_to_close: socket
+        :type soc_to_close: socket.socket
+        """
+
+        if soc_to_close is None:
+            return
+
+        try:
+            soc_to_close.shutdown(2)
+        except Exception as e:
+            logger.debug("Socket shutdown ex=%s", SolBase.extostr(e))
+
+        try:
+            soc_to_close.close()
+        except Exception as e:
+            logger.debug("Socket close ex=%s", SolBase.extostr(e))
+
+        try:
+            del soc_to_close
+        except Exception as e:
+            logger.debug("Socket del ex=%s", SolBase.extostr(e))

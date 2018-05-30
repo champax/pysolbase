@@ -65,8 +65,11 @@ class TestLogging(unittest.TestCase):
         """
         Log callback
         :param message: Log
+        :type message: bytes
         """
-        self.lastMessage = message
+
+        # We receive binary, go to str
+        self.lastMessage = SolBase.binary_to_unicode(message)
         self.onLogCallCount += 1
 
     def test_logging_init(self):
@@ -75,16 +78,16 @@ class TestLogging(unittest.TestCase):
         """
 
         SolBase.logging_init("INFO", True)
-        self.assertEqual(logging._levelNames[logging.getLogger().getEffectiveLevel()], "INFO")
+        self.assertEqual(logging.getLevelName(logging.getLogger().getEffectiveLevel()), "INFO")
 
         SolBase.logging_init("DEBUG", False)
-        self.assertEqual(logging._levelNames[logging.getLogger().getEffectiveLevel()], "INFO")
+        self.assertEqual(logging.getLevelName(logging.getLogger().getEffectiveLevel()), "INFO")
 
         SolBase.logging_init("DEBUG", True)
-        self.assertEqual(logging._levelNames[logging.getLogger().getEffectiveLevel()], "DEBUG")
+        self.assertEqual(logging.getLevelName(logging.getLogger().getEffectiveLevel()), "DEBUG")
 
         SolBase.logging_init("INFO", True)
-        self.assertEqual(logging._levelNames[logging.getLogger().getEffectiveLevel()], "INFO")
+        self.assertEqual(logging.getLevelName(logging.getLogger().getEffectiveLevel()), "INFO")
 
     def test_syslog(self):
         """
@@ -107,7 +110,7 @@ class TestLogging(unittest.TestCase):
         self.assertGreaterEqual(self.lastMessage.find(SolBase.get_machine_name() + " |"), 0)
         logger.info("Received ==> %s", repr(self.lastMessage))
 
-        # Emit a log (unicode)
+        # Emit a log (str)
         self.onLogCallCount = 0
         logger.info(repr(u"BUF\u001B\u0BD9\U0001A10D\u1501FUB"))
 
@@ -143,7 +146,7 @@ class TestLogging(unittest.TestCase):
         # Emit a log
         logger.info("TEST LOG 888")
 
-        # Emit a log (unicode)
+        # Emit a log (str)
         logger.info(u"BUF \u001B\u0BD9\U0001A10D\u1501\xc3 FUB")
 
         # Check the file
@@ -193,7 +196,7 @@ class TestLogging(unittest.TestCase):
         # Emit a log
         logger.info("TEST LOG 888")
 
-        # Emit a log (unicode)
+        # Emit a log (str)
         logger.info(u"BUF \u001B\u0BD9\U0001A10D\u1501\xc3 FUB")
 
         # Check the file
@@ -232,7 +235,7 @@ class TestLogging(unittest.TestCase):
         # Emit a log
         logger.info("TEST LOG 888")
 
-        # Emit a log (unicode)
+        # Emit a log (str)
         logger.info(u"BUF \u001B\u0BD9\U0001A10D\u1501\xc3 FUB")
 
         # Check the file
@@ -274,11 +277,11 @@ class TestLogging(unittest.TestCase):
 
         # Default
         SolBase.logging_init("INFO", True)
-        self.assertEqual(logging._levelNames[logging.getLogger().getEffectiveLevel()], "INFO")
+        self.assertEqual(logging.getLevelName(logging.getLogger().getEffectiveLevel()), "INFO")
 
         # Load from file
         SolBase.logging_initfromfile(cf, False)
-        self.assertEqual(logging._levelNames[logging.getLogger().getEffectiveLevel()], "INFO")
+        self.assertEqual(logging.getLevelName(logging.getLogger().getEffectiveLevel()), "INFO")
 
         SolBase.logging_initfromfile(cf, True)
-        self.assertEqual(logging._levelNames[logging.getLogger().getEffectiveLevel()], "DEBUG")
+        self.assertEqual(logging.getLevelName(logging.getLogger().getEffectiveLevel()), "DEBUG")
