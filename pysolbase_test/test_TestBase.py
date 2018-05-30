@@ -25,6 +25,11 @@ import inspect
 import logging
 import unittest
 
+import time
+
+import gevent
+from gevent import monkey
+
 from pysolbase import max_int
 from pysolbase.SolBase import SolBase
 from pysolbase_test.CrashMe import CrashMe
@@ -89,8 +94,8 @@ class TestBase(unittest.TestCase):
 
         ms = SolBase.mscurrent()
         SolBase.sleep(100)
-        # Gevent 1.3 : 100 can result in real 50-100 sleep (WTF)
-        self.assertGreaterEqual(SolBase.msdiff(ms), 100/2)
+        # Gevent 1.3 : this is buggy (may be related to https://github.com/gevent/gevent/issues/1227)
+        self.assertGreaterEqual(SolBase.msdiff(ms), 100)
         self.assertLessEqual(SolBase.msdiff(ms), 200)
 
     def test_machine_name(self):
@@ -107,8 +112,8 @@ class TestBase(unittest.TestCase):
 
         dt = SolBase.datecurrent()
         SolBase.sleep(100)
-        # Gevent 1.3 : 100 can result in real 50-100 sleep (WTF)
-        self.assertGreaterEqual(SolBase.datediff(dt), 100/2)
+        # Gevent 1.3 : this is buggy (may be related to https://github.com/gevent/gevent/issues/1227)
+        self.assertGreaterEqual(SolBase.datediff(dt), 100)
         self.assertLessEqual(SolBase.datediff(dt), 200)
 
     def test_conversion(self):

@@ -396,6 +396,7 @@ class SolBase(object):
             # Fire the voodoo magic :)
             lifecyclelogger.debug("Voodoo : gevent : entering, aggressive=%s", aggressive)
             monkey.patch_all(aggressive=aggressive)
+            gevent.sleep(0.1)
             lifecyclelogger.debug("Voodoo : gevent : entering")
 
             # Initialize log level to INFO
