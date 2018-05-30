@@ -25,11 +25,6 @@ import inspect
 import logging
 import unittest
 
-import time
-
-import gevent
-from gevent import monkey
-
 from pysolbase import max_int
 from pysolbase.SolBase import SolBase
 from pysolbase_test.CrashMe import CrashMe
