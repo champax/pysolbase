@@ -35,7 +35,7 @@ from threading import Lock
 import gevent
 import pytz
 from datetime import datetime
-from gevent import monkey
+from gevent import monkey, config
 
 from pysolbase import integer_types
 
@@ -397,6 +397,11 @@ class SolBase(object):
             lifecyclelogger.debug("Voodoo : gevent : entering, aggressive=%s", aggressive)
             monkey.patch_all(aggressive=aggressive)
             lifecyclelogger.debug("Voodoo : gevent : entering")
+
+            # Gevent 1.3 : by default, gevent keep tracks of spawn call stack
+            # This may lead to memory leak, if a method spawn itself in loop (timer mode)
+            # We disable this
+            config.track_greenlet_tree = False
 
             # Initialize log level to INFO
             lifecyclelogger.debug("Voodoo : logging : entering")
