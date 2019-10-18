@@ -374,12 +374,14 @@ class SolBase(object):
     # ===============================
 
     @classmethod
-    def voodoo_init(cls, aggressive=True):
+    def voodoo_init(cls, aggressive=True, init_logging=True):
         """
         Global initialization, to call asap.
         Apply gevent stuff & default logging configuration.
         :param aggressive: bool
         :type aggressive: bool
+        :param init_logging: If True, logging_init is called.
+        :type init_logging: bool
         :return Nothing.
         """
 
@@ -404,9 +406,10 @@ class SolBase(object):
             config.track_greenlet_tree = False
 
             # Initialize log level to INFO
-            lifecyclelogger.debug("Voodoo : logging : entering")
-            cls.logging_init()
-            lifecyclelogger.debug("Voodoo : logging : done")
+            if init_logging:
+                lifecyclelogger.debug("Voodoo : logging : entering")
+                cls.logging_init()
+                lifecyclelogger.debug("Voodoo : logging : done")
 
             # Done
             cls._voodoo_initialized = True
