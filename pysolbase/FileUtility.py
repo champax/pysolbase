@@ -29,7 +29,6 @@ import codecs
 from pysolbase import text_type
 from pysolbase.SolBase import SolBase
 
-SolBase.logging_init()
 logger = logging.getLogger("FileUtility")
 
 
