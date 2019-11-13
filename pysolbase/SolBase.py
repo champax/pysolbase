@@ -385,34 +385,43 @@ class SolBase(object):
         :return Nothing.
         """
 
-        # Check
-        if cls._voodoo_initialized:
-            return
-
-        # Lock
-        with cls._voodoo_lock:
-            # Re-check
+        try:
+            # Check
             if cls._voodoo_initialized:
                 return
 
-            # Fire the voodoo magic :)
-            lifecyclelogger.debug("Voodoo : gevent : entering, aggressive=%s", aggressive)
-            monkey.patch_all(aggressive=aggressive)
-            lifecyclelogger.debug("Voodoo : gevent : entering")
+            # Lock
+            with cls._voodoo_lock:
+                # Re-check
+                if cls._voodoo_initialized:
+                    return
 
-            # Gevent 1.3 : by default, gevent keep tracks of spawn call stack
-            # This may lead to memory leak, if a method spawn itself in loop (timer mode)
-            # We disable this
-            config.track_greenlet_tree = False
+                # Fire the voodoo magic :)
+                lifecyclelogger.debug("Voodoo : gevent : entering, aggressive=%s", aggressive)
+                monkey.patch_all(aggressive=aggressive)
+                lifecyclelogger.debug("Voodoo : gevent : entering")
 
-            # Initialize log level to INFO
-            if init_logging:
-                lifecyclelogger.debug("Voodoo : logging : entering")
+                # Gevent 1.3 : by default, gevent keep tracks of spawn call stack
+                # This may lead to memory leak, if a method spawn itself in loop (timer mode)
+                # We disable this
+                config.track_greenlet_tree = False
+
+                # Initialize log level to INFO
+                if init_logging:
+                    lifecyclelogger.debug("Voodoo : logging : entering")
+                    cls.logging_init()
+                    lifecyclelogger.debug("Voodoo : logging : done")
+
+                # Done
+                cls._voodoo_initialized = True
+        finally:
+            # If whenever init_logging if set AND it is NOT initialized => we must init it
+            # => we may have been called previously with init_logging=false, but monkey patch is SET and logging not initialized
+            # => so it must be init now
+            if init_logging and not cls._logging_initialized:
+                lifecyclelogger.debug("Voodoo : logging : not yet init : entering")
                 cls.logging_init()
-                lifecyclelogger.debug("Voodoo : logging : done")
-
-            # Done
-            cls._voodoo_initialized = True
+                lifecyclelogger.debug("Voodoo : logging : not yet init : done")
 
     # ===============================
     # LOGGING

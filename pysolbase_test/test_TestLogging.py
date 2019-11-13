@@ -45,7 +45,16 @@ class TestLogging(unittest.TestCase):
         Setup (called before each test)
         """
 
-        # Initialize asap
+        # Check
+        self.assertFalse(SolBase._voodoo_initialized)
+        self.assertFalse(SolBase._logging_initialized)
+
+        # Initialize without logging
+        SolBase.voodoo_init(init_logging=False)
+        self.assertTrue(SolBase._voodoo_initialized)
+        self.assertFalse(SolBase._logging_initialized)
+
+        # Re-call => logging must kick in
         SolBase.voodoo_init()
         self.assertTrue(SolBase._voodoo_initialized)
         self.assertTrue(SolBase._logging_initialized)
