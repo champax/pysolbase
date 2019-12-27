@@ -544,16 +544,14 @@ class SolBase(object):
             root.setLevel(logging.getLevelName(log_level))
             root.handlers = []
             if log_to_console:
+                c.addFilter(c_filter)
                 root.addHandler(c)
             if log_to_file and cf:
+                cf.addFilter(c_filter)
                 root.addHandler(cf)
             if log_to_syslog and syslog:
+                syslog.addFilter(c_filter)
                 root.addHandler(syslog)
-
-            # Filters
-            loggers = [logging.getLogger(name) for name in logging.root.manager.loggerDict]
-            for log in loggers:
-                log.addFilter(c_filter)
 
             # Done
             cls._logging_initialized = True

@@ -230,12 +230,15 @@ class TestLogging(unittest.TestCase):
 
     # noinspection PyMethodMayBeStatic
     def _run_filter(self, ip_addr):
+
+        lo = logger = logging.getLogger("new_logger")
         ContextFilter.remote_addr_set(ip_addr)
 
         # Emit a log
         ms = SolBase.mscurrent()
         while SolBase.msdiff(ms) < 2000.0:
             logger.info("TEST LOG ip_addr=%s", ip_addr)
+            lo.info("TEST LOG ip_addr=%s", ip_addr)
             SolBase.sleep(0)
 
     def test_log_to_file_time_file(self):
