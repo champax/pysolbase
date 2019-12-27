@@ -23,14 +23,15 @@
 """
 import glob
 import logging
-import unittest
-
 import os
+import unittest
 from os.path import dirname, abspath
 
+import gevent
+
+from pysolbase.ContextFilter import ContextFilter
 from pysolbase.FileUtility import FileUtility
 from pysolbase.SolBase import SolBase
-
 
 logger = logging.getLogger("TestBase")
 
@@ -44,6 +45,8 @@ class TestLogging(unittest.TestCase):
         """
         Setup (called before each test)
         """
+
+        SolBase._reset()
 
         # Check
         self.assertFalse(SolBase._voodoo_initialized)
@@ -180,6 +183,60 @@ class TestLogging(unittest.TestCase):
         self.assertIsNotNone(buf)
         self.assertGreaterEqual(buf.find("TOTO"), 0)
         self.assertGreaterEqual(buf.find("TEST LOG 999"), 0)
+
+    def test_log_to_file_with_filter_greenlet(self):
+        """
+        Test
+        """
+
+        log_file = "/tmp/pythonsol_unittest.log"
+
+        # Clean
+        if FileUtility.is_file_exist(log_file):
+            os.remove(log_file)
+
+        # Init
+        SolBase.logging_init(log_level="INFO",
+                             log_to_file=log_file,
+                             log_to_console=True,
+                             log_to_syslog=False,
+                             log_callback=self._on_log,
+                             force_reset=True)
+        SolBase.set_compo_name("COMPO_XXX")
+
+        # Go
+        g1 = gevent.spawn(self._run_filter, "ip001")
+        g2 = gevent.spawn(self._run_filter, "ip002")
+        gevent.joinall([g1, g2])
+
+        # Re-read and check
+        buf = FileUtility.file_to_textbuffer(log_file, "utf-8")
+
+        self.assertGreaterEqual(buf.find("TEST LOG ip_addr=ip001"), 0)
+        self.assertGreaterEqual(buf.find("TEST LOG ip_addr=ip002"), 0)
+
+        # Via regex
+        for r, b in [
+            ["TEST LOG ip_addr=ip001 | k_ip:ip001", True],
+            ["TEST LOG ip_addr=ip002 | k_ip:ip002", True],
+            ["TEST LOG ip_addr=ip001 | k_ip:ip002", False],
+            ["TEST LOG ip_addr=ip002 | k_ip:ip001", False],
+        ]:
+            idx = buf.find(r)
+            if b:
+                self.assertLess(0, idx, r)
+            else:
+                self.assertGreaterEqual(0, idx, r)
+
+    # noinspection PyMethodMayBeStatic
+    def _run_filter(self, ip_addr):
+        ContextFilter.remote_addr_set(ip_addr)
+
+        # Emit a log
+        ms = SolBase.mscurrent()
+        while SolBase.msdiff(ms) < 2000.0:
+            logger.info("TEST LOG ip_addr=%s", ip_addr)
+            SolBase.sleep(0)
 
     def test_log_to_file_time_file(self):
         """
