@@ -21,10 +21,8 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 # ===============================================================================
 """
+from collections import OrderedDict
 
-# noinspection PyMethodMayBeStatic
-
-# noinspection PyMethodMayBeStatic
 from gevent.local import local
 
 
@@ -34,68 +32,41 @@ class ContextFilter(object):
     DOC : https://docs.python.org/3/howto/logging-cookbook.html#adding-contextual-information-to-your-logging-output
     """
 
-    # ===============================
-    # CAUTION : We must target local here (otherwise its local function variables)
-    # ===============================
+    # CAUTION : We must target local here as global (otherwise its a variable local to functions)
     LOC = local()
 
-    # ===============================
-    # SET / STATIC (easier for external calls)
-    # ===============================
-
     @classmethod
-    def remote_addr_set(cls, remote_addr):
+    def set_value(cls, k, v):
         """
-        Set remote addr
-        :param remote_addr: str,None
-        :type remote_addr: str,None
-        """
-
-        # Store it
-        cls.LOC.k_ip = remote_addr
-
-    # ===============================
-    # GET / NON STATIC (easier for D_FILTER)
-    # ===============================
-
-    def remote_addr_get(self):
-        """
-        Get remote addr from thread locals
-        :return None,basestring
-        :rtype None,basestring
+        Set context value
+        :param k: key name
+        :type k: basestring
+        :param v: value
+        :type v: object
         """
 
-        try:
-            return self.LOC.k_ip
-        except AttributeError:
-            return None
+        assert k is not None, "Need k, got None"
+        assert len(k) > 0, "Need k, got empty"
 
-    # ===============================
-    # Dictionary KEY to method
-    # WILL be appended to logger formatters
-    # ===============================
-    D_FILTER = {
-        "k_ip": remote_addr_get,
-    }
-
-    # ===============================
-    # FILTER
-    # ===============================
+        setattr(cls.LOC, k, v)
 
     def filter(self, record):
         """
         Record filter.
+        This will push thread context (using LOC) toward logger item "kfilter", as an OrderedDict, formatted as "key0:value0 keyN:valueN"
         :param record: logging.LogRecord
         :type record: logging.LogRecord
         :return: bool
         :rtype bool
         """
 
-        # Push
-        for k, m in self.D_FILTER.items():
-            # Get value from thread local
-            v = m(self)
-            # Push to record
-            setattr(record, k, v)
+        # Prepare
+        s = ""
+        for k, v in OrderedDict(self.LOC.__dict__).items():
+            s += " %s:%s" % (k, v)
+        s += " "
+
+        # Push to record in a single shot
+        setattr(record, "kfilter", s)
 
         return True

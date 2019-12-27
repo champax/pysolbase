@@ -462,7 +462,7 @@ class SolBase(object):
         :param log_to_file_mode: str "watched_file" for WatchedFileHandler, "time_file" for TimedRotatingFileHandler (or time_file_seconds for unittest)
         :type log_to_file_mode: str
         :param log_callback: Callback for unittest
-        :param context_filter: Context filter. If None, pysolbase.ContextFilter.ContextFilter is added. D_FILTER is browsed to append format contexts.
+        :param context_filter: Context filter. If None, pysolbase.ContextFilter.ContextFilter is used. If used instance has an attr "filter", it is added to all handlers and "%(kfilter)s" will be populated by all thread context key/values, using filter method call. Refer to our ContextFilter default implementation for details.
         :type context_filter: None,object
         :return Nothing.
         """
@@ -487,10 +487,10 @@ class SolBase(object):
             s_f = "%(asctime)s | %(levelname)s | %(module)s@%(funcName)s@%(lineno)d | %(message)s "
 
             # Browse
-            if hasattr(c_filter, "D_FILTER"):
-                s_f += "| "
-                for k in getattr(c_filter, "D_FILTER").keys():
-                    s_f += "%s:%%(%s)s " % (k, k)
+            if hasattr(c_filter, "filter"):
+                # Push generic field
+                # We expect it to be formatted like our pysolbase.ContextFilter.ContextFilter#filter method.
+                s_f += "|%(kfilter)s"
 
             # Format end
             s_f += "| %(thread)d:%(threadName)s | %(process)d:%(processName)s"

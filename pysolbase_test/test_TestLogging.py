@@ -217,8 +217,8 @@ class TestLogging(unittest.TestCase):
 
         # Via regex
         for r, b in [
-            ["TEST LOG ip_addr=ip001 | k_ip:ip001", True],
-            ["TEST LOG ip_addr=ip002 | k_ip:ip002", True],
+            ["TEST LOG ip_addr=ip001 | k_ip:ip001 z_value:ip001", True],
+            ["TEST LOG ip_addr=ip002 | k_ip:ip002 z_value:ip002", True],
             ["TEST LOG ip_addr=ip001 | k_ip:ip002", False],
             ["TEST LOG ip_addr=ip002 | k_ip:ip001", False],
         ]:
@@ -231,8 +231,9 @@ class TestLogging(unittest.TestCase):
     # noinspection PyMethodMayBeStatic
     def _run_filter(self, ip_addr):
 
-        lo = logger = logging.getLogger("new_logger")
-        ContextFilter.remote_addr_set(ip_addr)
+        lo = logging.getLogger("new_logger")
+        ContextFilter.set_value("k_ip", ip_addr)
+        ContextFilter.set_value("z_value", ip_addr)
 
         # Emit a log
         ms = SolBase.mscurrent()
