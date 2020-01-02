@@ -38,6 +38,7 @@ from datetime import datetime
 from gevent import monkey, config
 
 from pysolbase import integer_types
+from pysolbase.ContextFilter import ContextFilter
 
 logger = logging.getLogger(__name__)
 lifecyclelogger = logging.getLogger("lifecycle")
@@ -374,6 +375,15 @@ class SolBase(object):
     # ===============================
 
     @classmethod
+    def _reset(cls):
+        """
+        For unittest only
+        """
+
+        cls._logging_initialized = False
+        cls._voodoo_initialized = False
+
+    @classmethod
     def voodoo_init(cls, aggressive=True, init_logging=True):
         """
         Global initialization, to call asap.
@@ -433,7 +443,8 @@ class SolBase(object):
                      log_to_syslog=True,
                      log_to_syslog_facility=SysLogHandler.LOG_LOCAL0,
                      log_to_console=True,
-                     log_to_file_mode="watched_file"):
+                     log_to_file_mode="watched_file",
+                     context_filter=None):
         """
         Initialize logging sub system with default settings (console, pre-formatted output)
         :param log_to_console: if True to to console
@@ -451,6 +462,8 @@ class SolBase(object):
         :param log_to_file_mode: str "watched_file" for WatchedFileHandler, "time_file" for TimedRotatingFileHandler (or time_file_seconds for unittest)
         :type log_to_file_mode: str
         :param log_callback: Callback for unittest
+        :param context_filter: Context filter. If None, pysolbase.ContextFilter.ContextFilter is used. If used instance has an attr "filter", it is added to all handlers and "%(kfilter)s" will be populated by all thread context key/values, using filter method call. Refer to our ContextFilter default implementation for details.
+        :type context_filter: None,object
         :return Nothing.
         """
 
@@ -464,10 +477,26 @@ class SolBase(object):
             # Default
             logging.basicConfig(level=log_level)
 
+            # Filter
+            if context_filter:
+                c_filter = context_filter
+            else:
+                c_filter = ContextFilter()
+
+            # Format begin
+            s_f = "%(asctime)s | %(levelname)s | %(module)s@%(funcName)s@%(lineno)d | %(message)s "
+
+            # Browse
+            if hasattr(c_filter, "filter"):
+                # Push generic field
+                # We expect it to be formatted like our pysolbase.ContextFilter.ContextFilter#filter method.
+                s_f += "|%(kfilter)s"
+
+            # Format end
+            s_f += "| %(thread)d:%(threadName)s | %(process)d:%(processName)s"
+
             # Formatter
-            f = logging.Formatter(
-                "%(asctime)s | %(levelname)s | %(module)s@%(funcName)s@%(lineno)d |"
-                " %(message)s | %(thread)d:%(threadName)s | %(process)d:%(processName)s")
+            f = logging.Formatter(s_f)
 
             # Console handler
             c = None
@@ -515,10 +544,13 @@ class SolBase(object):
             root.setLevel(logging.getLevelName(log_level))
             root.handlers = []
             if log_to_console:
+                c.addFilter(c_filter)
                 root.addHandler(c)
             if log_to_file and cf:
+                cf.addFilter(c_filter)
                 root.addHandler(cf)
             if log_to_syslog and syslog:
+                syslog.addFilter(c_filter)
                 root.addHandler(syslog)
 
             # Done
@@ -559,6 +591,21 @@ class SolBase(object):
                 logger.error("Exception, e=%s", cls.extostr(e))
                 raise
 
+    @classmethod
+    def context_set(cls, k, v):
+        """
+        Set thread/greenlet context value
+
+        This is a wrapper to pysolbase.ContextFilter.ContextFilter#set_value
+        and will work only if ContextFilter is defined (which is by default)
+        :param k: key name
+        :type k: basestring
+        :param v: value
+        :type v: object
+        """
+
+        ContextFilter.set_value(k, v)
+
     # ===============================
     # FORK STUFF
     # ===============================
@@ -596,8 +643,8 @@ class SolBase(object):
         :type bin_buf: bytes
         :param encoding: Encoding to use
         :type encoding: str
-        :return str
-        :rtype str
+        :return unicode,str
+        :rtype unicode,str
         """
 
         return bin_buf.decode(encoding)
@@ -607,7 +654,7 @@ class SolBase(object):
         """
         Unicode to binary buffer, using the specified encoding
         :param unicode_buf: String to convert.
-        :type unicode_buf: str
+        :type unicode_buf: unicode
         :param encoding: Encoding to use.
         :type encoding: str
         :return bytes
