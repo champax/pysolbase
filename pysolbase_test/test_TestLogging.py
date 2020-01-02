@@ -232,9 +232,9 @@ class TestLogging(unittest.TestCase):
     def _run_filter(self, ip_addr):
 
         lo = logging.getLogger("new_logger")
-        ContextFilter.set_value("k_ip", ip_addr)
-        ContextFilter.set_value("z_value", ip_addr)
-        ContextFilter.set_value("zz_uc", u"B\u001BB")
+        SolBase.context_set("k_ip", ip_addr)
+        SolBase.context_set("z_value", ip_addr)
+        SolBase.context_set("zz_uc", u"B\u001BB")
 
         # Emit a log
         ms = SolBase.mscurrent()

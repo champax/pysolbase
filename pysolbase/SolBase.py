@@ -591,6 +591,21 @@ class SolBase(object):
                 logger.error("Exception, e=%s", cls.extostr(e))
                 raise
 
+    @classmethod
+    def context_set(cls, k, v):
+        """
+        Set thread/greenlet context value
+
+        This is a wrapper to pysolbase.ContextFilter.ContextFilter#set_value
+        and will work only if ContextFilter is defined (which is by default)
+        :param k: key name
+        :type k: basestring
+        :param v: value
+        :type v: object
+        """
+
+        ContextFilter.set_value(k, v)
+
     # ===============================
     # FORK STUFF
     # ===============================
