@@ -61,10 +61,11 @@ class ContextFilter(object):
         """
 
         # Prepare
-        s = ""
-        for k, v in OrderedDict(self.LOC.__dict__).items():
-            s += " %s:%s" % (k, v)
-        s += " "
+        s = u""
+        for k in sorted(self.LOC.__dict__.keys()):
+            v = self.LOC.__dict__[k]
+            s += u" %s:%s" % (k, v)
+        s += u" "
 
         # Push to record in a single shot
         setattr(record, "kfilter", s)
