@@ -21,9 +21,10 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 # ===============================================================================
 """
-from collections import OrderedDict
 
 from gevent.local import local
+
+from pysolbase.Assert import Assert
 
 
 class ContextFilter(object):
@@ -45,8 +46,8 @@ class ContextFilter(object):
         :type v: object
         """
 
-        assert k is not None, "Need k, got None"
-        assert len(k) > 0, "Need k, got empty"
+        Assert.check(Exception, k is not None, "Need k, got None")
+        Assert.check(Exception, len(k) > 0, "Need k, got empty")
 
         setattr(cls.LOC, k, v)
 

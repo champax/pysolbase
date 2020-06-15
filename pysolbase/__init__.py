@@ -47,12 +47,11 @@ if PY3:
 
     iteritems = dict.items
     itervalues = dict.values
+    # noinspection PyShadowingBuiltins
     xrange = range
 
     max_int = sys.maxsize
 
-    print("str={0}".format(str))
-    print("bytes={0}".format(bytes))
 else:
     # noinspection PyUnresolvedReferences
     string_types = basestring,
@@ -69,7 +68,7 @@ else:
     # noinspection PyUnresolvedReferences
     import __builtin__
 
-    # noinspection PyUnresolvedReferences
+    # noinspection PyUnresolvedReferences,PyShadowingBuiltins
     xrange = __builtin__.xrange
 
     # noinspection PyShadowingBuiltins
@@ -78,8 +77,3 @@ else:
 
     # noinspection PyUnresolvedReferences
     max_int = sys.maxint
-
-    # noinspection PyUnresolvedReferences
-    print("unicode={0}".format(unicode))
-    print("str={0}".format(str))
-    print("bytes={0}".format(bytes))

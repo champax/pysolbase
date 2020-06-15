@@ -29,7 +29,6 @@ from os.path import dirname, abspath
 
 import gevent
 
-from pysolbase.ContextFilter import ContextFilter
 from pysolbase.FileUtility import FileUtility
 from pysolbase.SolBase import SolBase
 
