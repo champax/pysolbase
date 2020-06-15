@@ -30,6 +30,13 @@ from pysolbase.SolBase import SolBase
 logger = logging.getLogger(__name__)
 
 
+class LocalException(Exception):
+    """
+    For test
+    """
+    pass
+
+
 class TestAssert(unittest.TestCase):
     """
     Test description
@@ -78,9 +85,9 @@ class TestAssert(unittest.TestCase):
         self.assertRaises(Exception, Assert.check, Exception, {}, "Must raise")
 
         try:
-            Assert.check(StandardError, 1 == 2, "Must raise zzz")
+            Assert.check(LocalException, 1 == 2, "Must raise zzz")
             self.fail("Must raise")
-        except StandardError as e:
-            self.assertEquals(e.message, "Must raise zzz")
+        except LocalException as e:
+            self.assertIn("Must raise zzz", str(e))
         except Exception:
             self.fail("Must raise StandardError")
