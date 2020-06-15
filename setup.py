@@ -55,8 +55,6 @@ def requirement_read(req_file):
             # Ok
             local_req_list.append(row_buffer)
 
-    print("local_req_list={0}".format(local_req_list))
-    print("local_dep_list={0}".format(local_dep_list))
     return local_req_list, local_dep_list
 
 
@@ -68,7 +66,7 @@ p_name = "pysolbase"
 p_author = "Laurent Champagnac"
 p_email = "champagnac.laurent@gmail.com"
 p_url = "https://knock.center"
-p_version = "1.1.5"
+p_version = "1.1.6"
 
 # Load
 req_list, dep_list = requirement_read("requirements.txt")
