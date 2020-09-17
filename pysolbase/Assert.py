@@ -12,7 +12,7 @@ class Assert(object):
     """
 
     @classmethod
-    def check(cls, exception_class, condition, message):
+    def check(cls, exception_class, condition, message, *args, **kwargs):
         """
         Check a condition and, if false, raise provided exception with provided message.
         :param exception_class: Exception class to raise if condition is False.
@@ -26,4 +26,4 @@ class Assert(object):
         if condition:
             return
 
-        raise exception_class(message)
+        raise exception_class(message, *args, **kwargs)
