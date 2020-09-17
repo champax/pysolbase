@@ -34,7 +34,18 @@ class LocalException(Exception):
     """
     For test
     """
-    pass
+
+    def __init__(self, message, param1=None):
+        """
+        Test.
+
+        :param message: text message
+        :type message: str
+        :param param1: test
+        :type param1: object
+        """
+        self.param1 = param1
+        super(LocalException, self).__init__(message)
 
 
 class TestAssert(unittest.TestCase):
@@ -91,3 +102,16 @@ class TestAssert(unittest.TestCase):
             self.assertIn("Must raise zzz", str(e))
         except Exception:
             self.fail("Must raise StandardError")
+
+    def test_check_custom_params(self):
+        """
+        Test.
+
+        :return:
+        """
+        try:
+            Assert.check(LocalException, False, 'test', param1='custom')
+            self.assertTrue(False, 'must raise before')
+        except LocalException as e:
+            self.assertEqual(e.param1, 'custom')
+            self.assertEqual(e.message, 'test')
