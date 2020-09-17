@@ -106,12 +106,10 @@ class TestAssert(unittest.TestCase):
     def test_check_custom_params(self):
         """
         Test.
-
-        :return:
         """
         try:
-            Assert.check(LocalException, False, 'test', param1='custom')
+            Assert.check(LocalException, False, 'test_987', param1='custom')
             self.assertTrue(False, 'must raise before')
         except LocalException as e:
             self.assertEqual(e.param1, 'custom')
-            self.assertEqual(e.message, 'test')
+            self.assertIn("test_987", str(e))
