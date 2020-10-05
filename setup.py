@@ -66,7 +66,7 @@ p_name = "pysolbase"
 p_author = "Laurent Champagnac"
 p_email = "champagnac.laurent@gmail.com"
 p_url = "https://knock.center"
-p_version = "1.1.7"
+p_version = "1.1.8"
 
 # Load
 req_list, dep_list = requirement_read("requirements.txt")

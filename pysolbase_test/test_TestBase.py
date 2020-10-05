@@ -93,6 +93,12 @@ class TestBase(unittest.TestCase):
         self.assertGreaterEqual(SolBase.msdiff(ms), 100)
         self.assertLessEqual(SolBase.msdiff(ms), 200)
 
+        sec = SolBase.securrent()
+        SolBase.sleep(1100)
+        # Gevent 1.3 : this is buggy (may be related to https://github.com/gevent/gevent/issues/1227)
+        self.assertGreaterEqual(SolBase.msdiff(sec*1000), 1000)
+        self.assertLessEqual(SolBase.msdiff(sec*1000), 1200)
+
     def test_machine_name(self):
         """
         Test

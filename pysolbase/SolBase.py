@@ -74,11 +74,20 @@ class SolBase(object):
     @classmethod
     def mscurrent(cls):
         """
-        Return current millis since epoc
+        Return current millis since epoch
         :return float
         :rtype float
         """
         return time.time() * 1000.0
+
+    @classmethod
+    def securrent(cls):
+        """
+        Return current seconds since epoch
+        :return float
+        :rtype float
+        """
+        return time.time()
 
     @classmethod
     def msdiff(cls, ms_start, ms_end=None):
