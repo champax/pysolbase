@@ -40,7 +40,7 @@ do_something()
 ms_elapsed = SolBase.datediff(dt)
 ```
 
-Binary and unicode helpers
+Binary helpers
 
 ```
 bin_buf = SolBase.unicode_to_binary('This is my text buffer', encoding='utf-8')

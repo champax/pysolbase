@@ -35,9 +35,9 @@ from threading import Lock
 import gevent
 import pytz
 from datetime import datetime
+
 from gevent import monkey, config
 
-from pysolbase import integer_types
 from pysolbase.ContextFilter import ContextFilter
 
 logger = logging.getLogger(__name__)
@@ -652,8 +652,8 @@ class SolBase(object):
         :type bin_buf: bytes
         :param encoding: Encoding to use
         :type encoding: str
-        :return unicode,str
-        :rtype unicode,str
+        :return str
+        :rtype str
         """
 
         return bin_buf.decode(encoding)
@@ -663,7 +663,7 @@ class SolBase(object):
         """
         Unicode to binary buffer, using the specified encoding
         :param unicode_buf: String to convert.
-        :type unicode_buf: unicode
+        :type unicode_buf: str
         :param encoding: Encoding to use.
         :type encoding: str
         :return bytes
@@ -777,7 +777,7 @@ class SolBase(object):
         elif SolBase.is_bool(my_int):
             return False
         else:
-            return isinstance(my_int, integer_types)
+            return isinstance(my_int, int)
 
     @classmethod
     def get_current_pid_as_string(cls):
