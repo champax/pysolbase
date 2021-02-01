@@ -551,15 +551,6 @@ class SolBase(object):
             # Initialize
             root = logging.getLogger()
             root.setLevel(logging.getLevelName(log_level))
-
-            # In case of forking, we may have un-closed ressources
-            if root.handlers:
-                for h in root.handlers:
-                    try:
-                        h.close()
-                    except Exception as e:
-                        print("Close exception(non fatal), ex=%s" % SolBase.extostr(e))
-            # Reset
             root.handlers = []
             if log_to_console:
                 c.addFilter(c_filter)
