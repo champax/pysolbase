@@ -49,6 +49,10 @@ class SysLogger(SysLogHandler):
         :param log_callback: Callback for unit test
         """
 
+        # To avoid some warnings
+        self.socket = None
+        self.address = None
+
         # Store
         self._log_callback = log_callback
         self.socktype = socktype
@@ -107,6 +111,7 @@ class SysLogger(SysLogHandler):
                 try:
                     self.socket.send(msg)
                 except socket.error:
+                    # noinspection PyUnresolvedReferences
                     self._connect_unixsocket(self.address)
                     self.socket.send(msg)
             elif self.socktype == socket.SOCK_DGRAM:
