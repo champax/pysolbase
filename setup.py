@@ -24,6 +24,7 @@
 from distutils.core import setup
 
 import re
+
 from setuptools import find_packages
 
 
@@ -66,7 +67,7 @@ p_name = "pysolbase"
 p_author = "Laurent Champagnac"
 p_email = "champagnac.laurent@gmail.com"
 p_url = "https://knock.center"
-p_version = "1.1.8"
+p_version = "3.0.0"
 
 # Load
 req_list, dep_list = requirement_read("requirements.txt")

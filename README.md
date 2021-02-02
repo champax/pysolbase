@@ -40,7 +40,7 @@ do_something()
 ms_elapsed = SolBase.datediff(dt)
 ```
 
-Binary and unicode helpers
+Binary helpers
 
 ```
 bin_buf = SolBase.unicode_to_binary('This is my text buffer', encoding='utf-8')
@@ -74,20 +74,20 @@ Source code
 - All unittest files must begin with `test_` or `Test`, should implement setUp and tearDown methods
 - All tests must adapt to any running directory
 - The whole project is backed by gevent (http://www.gevent.org/)
-- We use docstring (:return, :rtype, :param, :type etc..), they are mandatory
+- We use docstring (:return, :rtype, :param, :type etc), they are mandatory
 - We use PyCharm "noinspection", feel free to use them
 
 Requirements
 ===============
 
-- Debian 8 Jessie or greater, x64, Python 2.7
+- Debian 10 or greater, x64, Python 3.7
 
 Unittests
 ===============
 
 To run unittests, you will need:
 
-- nothing special except python and dependencies requirements.
+- nothing special except Python and dependencies requirements.
 
 License
 ===============

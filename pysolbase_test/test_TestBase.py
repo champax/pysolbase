@@ -23,9 +23,9 @@
 """
 import inspect
 import logging
+import sys
 import unittest
 
-from pysolbase import max_int
 from pysolbase.SolBase import SolBase
 from pysolbase_test.CrashMe import CrashMe
 
@@ -148,13 +148,13 @@ class TestBase(unittest.TestCase):
 
         # Misc
         logger.info("Class=%s", delay_class)
-        d = delay_class("dummyName", [0, 10, max_int])
+        d = delay_class("dummyName", [0, 10, sys.maxsize])
 
         d.put(0, 5)
         d.put(9, 2)
         d.put(10, 15)
         d.put(19, 1)
-        d.put(max_int, 3)
+        d.put(sys.maxsize, 3)
 
         self.assertEqual(d._sorted_dict[0].get(), 7)
         self.assertEqual(d._sorted_dict[10].get(), 19)
@@ -166,7 +166,7 @@ class TestBase(unittest.TestCase):
         Test
         """
 
-        buf = u"BUF\u001B\u0BD9\U0001A10D\u1501FUB"
+        buf = "BUF\u001B\u0BD9\U0001A10D\u1501FUB"
         bin_buf = SolBase.unicode_to_binary(buf, "utf-8")
         self.assertEqual(buf, SolBase.binary_to_unicode(bin_buf, "utf-8"))
 

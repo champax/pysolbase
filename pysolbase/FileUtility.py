@@ -26,7 +26,6 @@ import logging
 import os
 import codecs
 
-from pysolbase import text_type
 from pysolbase.SolBase import SolBase
 
 logger = logging.getLogger("FileUtility")
@@ -51,7 +50,7 @@ class FileUtility(object):
         if path_name is None:
             logger.error("is_path_exist : file_name is None")
             return False
-        elif not isinstance(path_name, text_type):
+        elif not isinstance(path_name, str):
             logger.error("is_path_exist : path_name not a text_type, className=%s", SolBase.get_classname(path_name))
             return False
 
@@ -72,7 +71,7 @@ class FileUtility(object):
         if file_name is None:
             logger.error("is_file_exist : file_name is None")
             return False
-        elif not isinstance(file_name, text_type):
+        elif not isinstance(file_name, str):
             logger.error("is_file_exist : file_name not a text_type, className=%s", SolBase.get_classname(file_name))
             return False
 
@@ -93,7 +92,7 @@ class FileUtility(object):
         if dir_name is None:
             logger.error("is_dir_exist : file_name is None")
             return False
-        elif not isinstance(dir_name, text_type):
+        elif not isinstance(dir_name, str):
             logger.error("is_dir_exist : file_name not a text_type, className=%s", SolBase.get_classname(dir_name))
             return False
 
