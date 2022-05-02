@@ -612,6 +612,22 @@ class SolBase(object):
                 h.addFilter(c_filter)
 
     @classmethod
+    def _fix_loggers_without_handlers(cls):
+        """
+        After a file init, if some loggers don't have handlers, assign root ones
+        """
+
+        # Initialize
+        ar_root = list(logging.getLogger().handlers)
+
+        # Browse all loggers and set
+        for name in logging.root.manager.loggerDict:
+            cur_logger = logging.getLogger(name)
+            if cur_logger.handlers is None or len(list(cur_logger.handlers)) == 0:
+                for h in ar_root:
+                    cur_logger.addHandler(h)
+
+    @classmethod
     def _reset_logging(cls):
         """
         Reset
@@ -633,7 +649,7 @@ class SolBase(object):
             cur_logger.setLevel(logging.getLevelName("INFO"))
             cur_logger.handlers = []
             cur_logger.disabled = False
-            cur_logger.propagate = True
+            cur_logger.propagate = False
 
     @classmethod
     def logging_initfromfile(cls, config_file_name, force_reset=False, context_filter=None):
@@ -674,6 +690,9 @@ class SolBase(object):
                 # Register filter
                 if c_filter:
                     cls._register_filter(c_filter)
+
+                # If some loggers have no handlers, assign root one
+                cls._fix_loggers_without_handlers()
 
                 if force_reset:
                     lifecyclelogger.info("Logging : initialized from yaml file, config_file_name=%s", config_file_name)

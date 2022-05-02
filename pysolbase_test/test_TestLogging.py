@@ -401,6 +401,7 @@ class TestLogging(unittest.TestCase):
         SolBase.context_set("k_ip", "ZZ01")
         SolBase.context_set("z_value", "ZZ02")
         logger.info("ZLOG")
+        self.assertIsNotNone(self.lastMessage)
         self.assertIn("ZLOG", self.lastMessage)
         self.assertIn("k_ip:ZZ01 ", self.lastMessage)
         self.assertIn("z_value:ZZ02 ", self.lastMessage)
