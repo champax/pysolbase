@@ -21,12 +21,14 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 # ===============================================================================
 """
+from logging import Filter
+
 from gevent.local import local
 
 from pysolbase.Assert import Assert
 
 
-class ContextFilter(object):
+class ContextFilter(Filter):
     """
     Context filter
     DOC : https://docs.python.org/3/howto/logging-cookbook.html#adding-contextual-information-to-your-logging-output

@@ -45,13 +45,13 @@ class SysLogger(SysLogHandler):
         :param facility: log facility
         :type facility: int
         :param socktype: Type of socket
-        :type socktype: int
+        :type socktype: socket.SocketKind
         :param log_callback: Callback for unit test
         """
 
         # To avoid some warnings
         self.socket = None
-        self.address = None
+        self.address = address
 
         # Store
         self._log_callback = log_callback

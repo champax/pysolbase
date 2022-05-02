@@ -28,7 +28,7 @@ import platform
 import sys
 import time
 import traceback
-from logging.config import fileConfig
+from logging.config import dictConfig
 from logging.handlers import WatchedFileHandler, TimedRotatingFileHandler, SysLogHandler
 from threading import Lock
 
@@ -37,6 +37,7 @@ import pytz
 from datetime import datetime
 
 from gevent import monkey, config
+from yaml import load, SafeLoader
 
 from pysolbase.ContextFilter import ContextFilter
 
@@ -456,7 +457,7 @@ class SolBase(object):
                      context_filter=None):
         """
         Initialize logging sub system with default settings (console, pre-formatted output)
-        :param log_to_console: if True to to console
+        :param log_to_console: if True to console
         :type log_to_console: bool
         :param log_level: The log level to set. Any value in "DEBUG", "INFO", "WARN", "ERROR", "CRITICAL"
         :type log_level: str
@@ -482,6 +483,9 @@ class SolBase(object):
         with cls._logging_lock:
             if cls._logging_initialized and not force_reset:
                 return
+
+            # Reset
+            cls._reset_logging()
 
             # Default
             logging.basicConfig(level=log_level)
@@ -510,7 +514,7 @@ class SolBase(object):
             # Console handler
             c = None
             if log_to_console:
-                # This can be override by unittest, we use __stdout__
+                # This can be overriden by unittest, we use __stdout__
                 c = logging.StreamHandler(sys.__stdout__)
                 c.setLevel(logging.getLevelName(log_level))
                 c.setFormatter(f)
@@ -552,6 +556,8 @@ class SolBase(object):
             root = logging.getLogger()
             root.setLevel(logging.getLevelName(log_level))
             root.handlers = []
+            root.disabled = False
+            root.propagate = False
             if log_to_console:
                 c.addFilter(c_filter)
                 root.addHandler(c)
@@ -561,6 +567,20 @@ class SolBase(object):
             if log_to_syslog and syslog:
                 syslog.addFilter(c_filter)
                 root.addHandler(syslog)
+
+            # Browse all loggers and set
+            for name in logging.root.manager.loggerDict:
+                cur_logger = logging.getLogger(name)
+                cur_logger.setLevel(logging.getLevelName(log_level))
+                cur_logger.handlers = []
+                cur_logger.disabled = False
+                cur_logger.propagate = False
+                if log_to_console:
+                    cur_logger.addHandler(c)
+                if log_to_file and cf:
+                    cur_logger.addHandler(cf)
+                if log_to_syslog and syslog:
+                    cur_logger.addHandler(syslog)
 
             # Done
             cls._logging_initialized = True
@@ -572,13 +592,59 @@ class SolBase(object):
                                       log_level, force_reset)
 
     @classmethod
-    def logging_initfromfile(cls, config_file_name, force_reset=False):
+    def _register_filter(cls, c_filter):
+        """
+        Register filter across the whole logging (root and all loggers)
+        Notice : addFilter is protected against duplicates add
+        :param c_filter: pysolbase.ContextFilter.ContextFilter
+        :type c_filter: pysolbase.ContextFilter.ContextFilter
+        """
+
+        # Initialize
+        root = logging.getLogger()
+        for h in list(root.handlers):
+            h.addFilter(c_filter)
+
+        # Browse all loggers and set
+        for name in logging.root.manager.loggerDict:
+            cur_logger = logging.getLogger(name)
+            for h in list(cur_logger.handlers):
+                h.addFilter(c_filter)
+
+    @classmethod
+    def _reset_logging(cls):
+        """
+        Reset
+        """
+
+        # Found no way to fully reset the logging stuff while running
+        # We reset root and all loggers to INFO, enabled them, propagate True except for root and clear up all handlers
+
+        # Initialize
+        root = logging.getLogger()
+        root.setLevel(logging.getLevelName("INFO"))
+        root.handlers = []
+        root.disabled = False
+        root.propagate = False
+
+        # Browse all loggers and set
+        for name in logging.root.manager.loggerDict:
+            cur_logger = logging.getLogger(name)
+            cur_logger.setLevel(logging.getLevelName("INFO"))
+            cur_logger.handlers = []
+            cur_logger.disabled = False
+            cur_logger.propagate = True
+
+    @classmethod
+    def logging_initfromfile(cls, config_file_name, force_reset=False, context_filter=None):
         """
         Initialize logging system from a configuration file, with optional reset.
         :param config_file_name: Configuration file name
         :type config_file_name: str
         :param force_reset: If true, logging system is reset.
         :type force_reset: bool
+        :param context_filter: Context filter. If None, pysolbase.ContextFilter.ContextFilter is used. If used instance has an attr "filter", it is added to all handlers and "%(kfilter)s" will be populated by all thread context key/values, using filter method call. Refer to our ContextFilter default implementation for details.
+        :type context_filter: None,object
         :return Nothing.
         """
 
@@ -590,14 +656,30 @@ class SolBase(object):
                 return
 
             try:
-                logger.debug("Logging : config_file_name=%s", config_file_name)
-                fileConfig(config_file_name, None, False)
-                if force_reset:
-                    lifecyclelogger.info("Logging : initialized from file, config_file_name=%s", config_file_name)
+                # Filter
+                if context_filter:
+                    c_filter = context_filter
                 else:
-                    lifecyclelogger.debug("Logging : initialized from file, config_file_name=%s", config_file_name)
+                    c_filter = ContextFilter()
+
+                # Reset
+                cls._reset_logging()
+
+                # Load
+                logger.debug("Logging : yaml config_file_name=%s", config_file_name)
+                with open(config_file_name, 'r') as f:
+                    d = load(f, Loader=SafeLoader)
+                    dictConfig(d)
+
+                # Register filter
+                if c_filter:
+                    cls._register_filter(c_filter)
+
+                if force_reset:
+                    lifecyclelogger.info("Logging : initialized from yaml file, config_file_name=%s", config_file_name)
+                else:
+                    lifecyclelogger.debug("Logging : initialized from yaml file, config_file_name=%s", config_file_name)
             except Exception as e:
-                logger.error("Exception, e=%s", cls.extostr(e))
                 raise
 
     @classmethod
@@ -744,7 +826,7 @@ class SolBase(object):
     def get_pathseparator(cls):
         """
         Return the path separator.
-        http://docs.python.org/library/os.html#os.sep
+        https://docs.python.org/library/os.html#os.sep
         :param cls: Our class
         :return: The path separator (string)
         """
