@@ -310,7 +310,7 @@ class SolBase(object):
             except UnicodeEncodeError:
                 ex_buf = repr(str(e))
             except Exception as e:
-                logger.error("Exception, e=%s", e)
+                logger.warning("Exception, e=%s", e)
                 raise
             out_buffer += ", e.bytes:[{0}]".format(ex_buf)
 
