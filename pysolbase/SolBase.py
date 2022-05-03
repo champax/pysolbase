@@ -698,7 +698,7 @@ class SolBase(object):
                     lifecyclelogger.info("Logging : initialized from yaml file, config_file_name=%s", config_file_name)
                 else:
                     lifecyclelogger.debug("Logging : initialized from yaml file, config_file_name=%s", config_file_name)
-            except Exception as e:
+            except Exception:
                 raise
 
     @classmethod
