@@ -22,6 +22,8 @@ handlers:
     class: pysolbase.SysLogger.SysLogger
     level: DEBUG
     formatter: FDEFAULT
+    address: "/dev/log"
+    facility: 17
 
 formatters:
   FDEFAULT:

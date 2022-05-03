@@ -28,7 +28,7 @@ import codecs
 
 from pysolbase.SolBase import SolBase
 
-logger = logging.getLogger("FileUtility")
+logger = logging.getLogger(__name__)
 
 
 class FileUtility(object):

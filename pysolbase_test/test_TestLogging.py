@@ -33,7 +33,7 @@ from pysolbase.FileUtility import FileUtility
 from pysolbase.SolBase import SolBase
 from pysolbase.SysLogger import SysLogger
 
-logger = logging.getLogger("TestBase")
+logger = logging.getLogger(__name__)
 
 
 class TestLogging(unittest.TestCase):
