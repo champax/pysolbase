@@ -73,6 +73,25 @@ class TestLogging(unittest.TestCase):
         """
         pass
 
+    @classmethod
+    def print_logger_context(cls):
+        """
+        Test
+        """
+
+        print("*** LOGGERS")
+        ar = list()
+        ar.append("root")
+        ar.extend(list(logging.root.manager.loggerDict))
+        for name in ar:
+            cur_logger = logging.getLogger(name)
+            s = "log=%s, pg=%s, h=%s" % (cur_logger.name, cur_logger.propagate, len(cur_logger.handlers))
+            c = cur_logger.parent
+            while c is not None:
+                s += " => %s(%s, %s)" % (c.name, c.propagate, len(c.handlers))
+                c = c.parent
+            print(s)
+
     def _on_log(self, message):
         """
         Log callback
@@ -82,6 +101,7 @@ class TestLogging(unittest.TestCase):
 
         # We receive binary, go to str
         self.lastMessage = SolBase.binary_to_unicode(message)
+        print("RECV=%s" % self.lastMessage)
         self.onLogCallCount += 1
 
     def test_logging_init(self):
@@ -106,9 +126,13 @@ class TestLogging(unittest.TestCase):
         Test
         """
 
+        self.print_logger_context()
+
         # Syslog is enabled by default
         SolBase.logging_init("INFO", True, log_to_console=False, log_callback=self._on_log)
         SolBase.set_compo_name("COMPO_XXX")
+
+        self.print_logger_context()
 
         # Emit a log
         self.onLogCallCount = 0

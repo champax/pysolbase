@@ -548,7 +548,7 @@ class SolBase(object):
                     syslog.setLevel(logging.getLevelName(log_level))
                     syslog.setFormatter(f)
                 except Exception as e:
-                    # This will fail on windows (no attr AF_UNIX)
+                    # This will fail on WINDOWS (no attr AF_UNIX)
                     logger.debug("Unable to import SysLogger, e=%s", SolBase.extostr(e))
                     syslog = False
 
@@ -556,8 +556,6 @@ class SolBase(object):
             root = logging.getLogger()
             root.setLevel(logging.getLevelName(log_level))
             root.handlers = []
-            root.disabled = False
-            root.propagate = False
             if log_to_console:
                 c.addFilter(c_filter)
                 root.addHandler(c)
@@ -568,28 +566,12 @@ class SolBase(object):
                 syslog.addFilter(c_filter)
                 root.addHandler(syslog)
 
-            # Browse all loggers and set
-            for name in logging.root.manager.loggerDict:
-                cur_logger = logging.getLogger(name)
-                cur_logger.setLevel(logging.getLevelName(log_level))
-                cur_logger.handlers = []
-                cur_logger.disabled = False
-                cur_logger.propagate = False
-                if log_to_console:
-                    cur_logger.addHandler(c)
-                if log_to_file and cf:
-                    cur_logger.addHandler(cf)
-                if log_to_syslog and syslog:
-                    cur_logger.addHandler(syslog)
-
             # Done
             cls._logging_initialized = True
             if force_reset:
-                lifecyclelogger.info("Logging : initialized from memory, log_level=%s, force_reset=%s",
-                                     log_level, force_reset)
+                lifecyclelogger.info("Logging : initialized from memory, log_level=%s, force_reset=%s", log_level, force_reset)
             else:
-                lifecyclelogger.debug("Logging : initialized from memory, log_level=%s, force_reset=%s",
-                                      log_level, force_reset)
+                lifecyclelogger.debug("Logging : initialized from memory, log_level=%s, force_reset=%s", log_level, force_reset)
 
     @classmethod
     def _register_filter(cls, c_filter):
@@ -612,44 +594,24 @@ class SolBase(object):
                 h.addFilter(c_filter)
 
     @classmethod
-    def _fix_loggers_without_handlers(cls):
-        """
-        After a file init, if some loggers don't have handlers, assign root ones
-        """
-
-        # Initialize
-        ar_root = list(logging.getLogger().handlers)
-
-        # Browse all loggers and set
-        for name in logging.root.manager.loggerDict:
-            cur_logger = logging.getLogger(name)
-            if cur_logger.handlers is None or len(list(cur_logger.handlers)) == 0:
-                for h in ar_root:
-                    cur_logger.addHandler(h)
-
-    @classmethod
     def _reset_logging(cls):
         """
         Reset
         """
 
         # Found no way to fully reset the logging stuff while running
-        # We reset root and all loggers to INFO, enabled them, propagate True except for root and clear up all handlers
+        # We reset root and all loggers to INFO, and kick handlers
 
         # Initialize
         root = logging.getLogger()
         root.setLevel(logging.getLevelName("INFO"))
         root.handlers = []
-        root.disabled = False
-        root.propagate = False
 
         # Browse all loggers and set
         for name in logging.root.manager.loggerDict:
             cur_logger = logging.getLogger(name)
             cur_logger.setLevel(logging.getLevelName("INFO"))
             cur_logger.handlers = []
-            cur_logger.disabled = False
-            cur_logger.propagate = False
 
     @classmethod
     def logging_initfromfile(cls, config_file_name, force_reset=False, context_filter=None):
@@ -690,9 +652,6 @@ class SolBase(object):
                 # Register filter
                 if c_filter:
                     cls._register_filter(c_filter)
-
-                # If some loggers have no handlers, assign root one
-                cls._fix_loggers_without_handlers()
 
                 if force_reset:
                     lifecyclelogger.info("Logging : initialized from yaml file, config_file_name=%s", config_file_name)

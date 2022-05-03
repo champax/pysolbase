@@ -6,15 +6,15 @@ version: 1
 
 disable_existing_loggers: false
 
+incremental: false
+
 root:
   level: DEBUG
   handlers: [ hSyslog ]
-  propagate: false
 
 loggers:
   zzz:
     level: WARNING
-    handlers: [ hSyslog ]
     propagate: true
 
 handlers:
