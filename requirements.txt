@@ -11,3 +11,6 @@ distro
 
 # date
 pytz
+
+# yaml
+pyyaml

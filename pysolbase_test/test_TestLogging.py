@@ -31,8 +31,9 @@ import gevent
 
 from pysolbase.FileUtility import FileUtility
 from pysolbase.SolBase import SolBase
+from pysolbase.SysLogger import SysLogger
 
-logger = logging.getLogger("TestBase")
+logger = logging.getLogger(__name__)
 
 
 class TestLogging(unittest.TestCase):
@@ -72,6 +73,25 @@ class TestLogging(unittest.TestCase):
         """
         pass
 
+    @classmethod
+    def print_logger_context(cls):
+        """
+        Test
+        """
+
+        print("*** LOGGERS")
+        ar = list()
+        ar.append("root")
+        ar.extend(list(logging.root.manager.loggerDict))
+        for name in ar:
+            cur_logger = logging.getLogger(name)
+            s = "log=%s, pg=%s, h=%s" % (cur_logger.name, cur_logger.propagate, len(cur_logger.handlers))
+            c = cur_logger.parent
+            while c is not None:
+                s += " => %s(%s, %s)" % (c.name, c.propagate, len(c.handlers))
+                c = c.parent
+            print(s)
+
     def _on_log(self, message):
         """
         Log callback
@@ -81,6 +101,7 @@ class TestLogging(unittest.TestCase):
 
         # We receive binary, go to str
         self.lastMessage = SolBase.binary_to_unicode(message)
+        print("RECV=%s" % self.lastMessage)
         self.onLogCallCount += 1
 
     def test_logging_init(self):
@@ -105,9 +126,13 @@ class TestLogging(unittest.TestCase):
         Test
         """
 
+        self.print_logger_context()
+
         # Syslog is enabled by default
-        SolBase.logging_init("INFO", True, log_callback=self._on_log)
+        SolBase.logging_init("INFO", True, log_to_console=False, log_callback=self._on_log)
         SolBase.set_compo_name("COMPO_XXX")
+
+        self.print_logger_context()
 
         # Emit a log
         self.onLogCallCount = 0
@@ -337,21 +362,75 @@ class TestLogging(unittest.TestCase):
         # Reset
         SolBase.logging_init("INFO", True)
 
-    def test_initfromfile(self):
+    def test_initfromfile_yaml(self):
         """
         Test
         """
 
         # Conf
-        cf = dirname(abspath(__file__)) + os.sep + "logging.conf"
+        cf = dirname(abspath(__file__)) + os.sep + "logging.yaml"
 
         # Default
         SolBase.logging_init("INFO", True)
         self.assertEqual(logging.getLevelName(logging.getLogger().getEffectiveLevel()), "INFO")
+        self.assertEqual(logging.getLevelName(logging.getLogger("zzz").getEffectiveLevel()), "INFO")
 
         # Load from file
         SolBase.logging_initfromfile(cf, False)
         self.assertEqual(logging.getLevelName(logging.getLogger().getEffectiveLevel()), "INFO")
+        self.assertEqual(logging.getLevelName(logging.getLogger("zzz").getEffectiveLevel()), "INFO")
 
         SolBase.logging_initfromfile(cf, True)
         self.assertEqual(logging.getLevelName(logging.getLogger().getEffectiveLevel()), "DEBUG")
+        self.assertEqual(logging.getLevelName(logging.getLogger("zzz").getEffectiveLevel()), "WARNING")
+
+        # Default
+        SolBase.logging_init("INFO", True)
+        self.assertEqual(logging.getLevelName(logging.getLogger().getEffectiveLevel()), "INFO")
+        self.assertEqual(logging.getLevelName(logging.getLogger("zzz").getEffectiveLevel()), "INFO")
+
+    def test_initfromfile_yaml_with_filter(self):
+        """
+        Test
+        """
+
+        # Conf
+        cf = dirname(abspath(__file__)) + os.sep + "logging.yaml"
+
+        # Default
+        SolBase.logging_init("INFO", True)
+        self.assertEqual(logging.getLevelName(logging.getLogger().getEffectiveLevel()), "INFO")
+        self.assertEqual(logging.getLevelName(logging.getLogger("zzz").getEffectiveLevel()), "INFO")
+
+        # Load from file
+        SolBase.logging_initfromfile(cf, False)
+        self.assertEqual(logging.getLevelName(logging.getLogger().getEffectiveLevel()), "INFO")
+        self.assertEqual(logging.getLevelName(logging.getLogger("zzz").getEffectiveLevel()), "INFO")
+
+        SolBase.logging_initfromfile(cf, True)
+        self.assertEqual(logging.getLevelName(logging.getLogger().getEffectiveLevel()), "DEBUG")
+        self.assertEqual(logging.getLevelName(logging.getLogger("zzz").getEffectiveLevel()), "WARNING")
+
+        # Register callback (hack it)
+        for name in logging.root.manager.loggerDict:
+            cur_logger = logging.getLogger(name)
+            for h in cur_logger.handlers:
+                self.assertIsInstance(h, SysLogger)
+                h._log_callback = self._on_log
+        for h in logging.root.handlers:
+            self.assertIsInstance(h, SysLogger)
+            h._log_callback = self._on_log
+        SolBase.set_compo_name("COMPO_XXX")
+
+        SolBase.context_set("k_ip", "ZZ01")
+        SolBase.context_set("z_value", "ZZ02")
+        logger.info("ZLOG")
+        self.assertIsNotNone(self.lastMessage)
+        self.assertIn("ZLOG", self.lastMessage)
+        self.assertIn("k_ip:ZZ01 ", self.lastMessage)
+        self.assertIn("z_value:ZZ02 ", self.lastMessage)
+
+        # Default
+        SolBase.logging_init("INFO", True)
+        self.assertEqual(logging.getLevelName(logging.getLogger().getEffectiveLevel()), "INFO")
+        self.assertEqual(logging.getLevelName(logging.getLogger("zzz").getEffectiveLevel()), "INFO")

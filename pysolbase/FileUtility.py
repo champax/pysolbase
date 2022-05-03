@@ -28,7 +28,7 @@ import codecs
 
 from pysolbase.SolBase import SolBase
 
-logger = logging.getLogger("FileUtility")
+logger = logging.getLogger(__name__)
 
 
 class FileUtility(object):
@@ -48,10 +48,10 @@ class FileUtility(object):
 
         # Check
         if path_name is None:
-            logger.error("is_path_exist : file_name is None")
+            logger.warning("is_path_exist : file_name is None")
             return False
         elif not isinstance(path_name, str):
-            logger.error("is_path_exist : path_name not a text_type, className=%s", SolBase.get_classname(path_name))
+            logger.warning("is_path_exist : path_name not a text_type, className=%s", SolBase.get_classname(path_name))
             return False
 
         # Go
@@ -69,10 +69,10 @@ class FileUtility(object):
 
         # Check
         if file_name is None:
-            logger.error("is_file_exist : file_name is None")
+            logger.warning("is_file_exist : file_name is None")
             return False
         elif not isinstance(file_name, str):
-            logger.error("is_file_exist : file_name not a text_type, className=%s", SolBase.get_classname(file_name))
+            logger.warning("is_file_exist : file_name not a text_type, className=%s", SolBase.get_classname(file_name))
             return False
 
         # Go
@@ -90,10 +90,10 @@ class FileUtility(object):
 
         # Check
         if dir_name is None:
-            logger.error("is_dir_exist : file_name is None")
+            logger.warning("is_dir_exist : file_name is None")
             return False
         elif not isinstance(dir_name, str):
-            logger.error("is_dir_exist : file_name not a text_type, className=%s", SolBase.get_classname(dir_name))
+            logger.warning("is_dir_exist : file_name not a text_type, className=%s", SolBase.get_classname(dir_name))
             return False
 
         # Go
@@ -135,7 +135,7 @@ class FileUtility(object):
 
         # Check
         if not FileUtility.is_file_exist(file_name):
-            logger.error("file_to_binary : file_name not exist, file_name=%s", file_name)
+            logger.warning("file_to_binary : file_name not exist, file_name=%s", file_name)
             return None
 
         # Go
@@ -148,10 +148,10 @@ class FileUtility(object):
             return rd.read()
         except IOError as e:
             # Exception...
-            logger.error("IOError, ex=%s", SolBase.extostr(e))
+            logger.warning("IOError, ex=%s", SolBase.extostr(e))
             return None
         except Exception as e:
-            logger.error("Exception, ex=%s", SolBase.extostr(e))
+            logger.warning("Exception, ex=%s", SolBase.extostr(e))
             return None
         finally:
             # Close if not None...
@@ -173,7 +173,7 @@ class FileUtility(object):
 
         # Check
         if not FileUtility.is_file_exist(file_name):
-            logger.error("file_to_textbuffer : file_name not exist, file_name=%s", file_name)
+            logger.warning("file_to_textbuffer : file_name not exist, file_name=%s", file_name)
             return None
 
         # Go
@@ -186,10 +186,10 @@ class FileUtility(object):
             return rd.read()
         except IOError as e:
             # Exception...
-            logger.error("file_to_binary : IOError, ex=%s", SolBase.extostr(e))
+            logger.warning("file_to_binary : IOError, ex=%s", SolBase.extostr(e))
             return None
         except Exception as e:
-            logger.error("file_to_binary : Exception, ex=%s", SolBase.extostr(e))
+            logger.warning("file_to_binary : Exception, ex=%s", SolBase.extostr(e))
             return None
         finally:
             # Close if not None...
@@ -219,10 +219,10 @@ class FileUtility(object):
             return rd.write(bin_buf)
         except IOError as e:
             # Exception...
-            logger.error("append_binary_to_file : IOError, ex=%s", SolBase.extostr(e))
+            logger.warning("append_binary_to_file : IOError, ex=%s", SolBase.extostr(e))
             return -1
         except Exception as e:
-            logger.error("append_binary_to_file : Exception, ex=%s", SolBase.extostr(e))
+            logger.warning("append_binary_to_file : Exception, ex=%s", SolBase.extostr(e))
             return -1
         finally:
             # Close if not None...
@@ -260,10 +260,10 @@ class FileUtility(object):
             return rd.write(text_buffer)
         except IOError as e:
             # Exception...
-            logger.error("append_text_to_file : IOError, ex=%s", SolBase.extostr(e))
+            logger.warning("append_text_to_file : IOError, ex=%s", SolBase.extostr(e))
             return -1
         except Exception as e:
-            logger.error("append_text_to_file : Exception, ex=%s", SolBase.extostr(e))
+            logger.warning("append_text_to_file : Exception, ex=%s", SolBase.extostr(e))
             return -1
         finally:
             # Close if not None...
