@@ -485,7 +485,7 @@ class SolBase(object):
                 return
 
             # Reset
-            cls._reset_logging()
+            cls._reset_logging(log_level=log_level)
 
             # Default
             logging.basicConfig(level=log_level)
@@ -594,9 +594,11 @@ class SolBase(object):
                 h.addFilter(c_filter)
 
     @classmethod
-    def _reset_logging(cls):
+    def _reset_logging(cls, log_level):
         """
         Reset
+        :param log_level: str
+        :type log_level: str
         """
 
         # Found no way to fully reset the logging stuff while running
@@ -604,7 +606,7 @@ class SolBase(object):
 
         # Initialize
         root = logging.getLogger()
-        root.setLevel(logging.getLevelName("INFO"))
+        root.setLevel(logging.getLevelName(log_level))
         for h in root.handlers:
             # noinspection PyBroadException
             try:
@@ -616,7 +618,7 @@ class SolBase(object):
         # Browse all loggers and set
         for name in logging.root.manager.loggerDict:
             cur_logger = logging.getLogger(name)
-            cur_logger.setLevel(logging.getLevelName("INFO"))
+            cur_logger.setLevel(logging.getLevelName(log_level))
             for h in cur_logger.handlers:
                 # noinspection PyBroadException
                 try:
@@ -653,7 +655,7 @@ class SolBase(object):
                     c_filter = ContextFilter()
 
                 # Reset
-                cls._reset_logging()
+                cls._reset_logging(log_level="INFO")
 
                 # Load
                 logger.debug("Logging : yaml config_file_name=%s", config_file_name)
