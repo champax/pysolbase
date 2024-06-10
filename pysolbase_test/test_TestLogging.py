@@ -126,6 +126,9 @@ class TestLogging(unittest.TestCase):
         Test
         """
 
+        import sys
+        print("Python = %s" % str(sys.version_info))
+
         self.print_logger_context()
 
         # Syslog is enabled by default
