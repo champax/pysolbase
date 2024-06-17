@@ -287,7 +287,7 @@ class SolBase(object):
         """
         Format an exception.
         :param e: Any exception instance.
-        :type e: Exception
+        :type e: BaseException
         :param max_level: Maximum call stack level (default 30)
         :type max_level: int
         :param max_path_level: Maximum path level (default 5)
