@@ -270,7 +270,7 @@ class SolBase(object):
         Sleep for specified ms.
         Also used as gevent context switch in code, since it rely on gevent.sleep.
         :param sleep_ms: Millis to sleep.
-        :type sleep_ms: int
+        :type sleep_ms: int,float
         :return Nothing.
         """
         ms = sleep_ms * 0.001
