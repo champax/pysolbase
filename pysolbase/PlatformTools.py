@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # ===============================================================================
 #
-# Copyright (C) 2013/2017 Laurent Labatut / Laurent Champagnac
+# Copyright (C) 2013/2025 Laurent Labatut / Laurent Champagnac
 #
 #
 #
@@ -28,6 +28,7 @@ import tempfile
 import distro
 
 from pysolbase.SolBase import SolBase
+SolBase.voodoo_init()
 
 logger = logging.getLogger(__name__)
 
@@ -105,52 +106,34 @@ class PlatformTools(object):
         platform.dist()
         ('Debian', '8', '')
 
-        *** Usefull : https://github.com/hpcugent/easybuild/wiki/OS_flavor_name_version
+        *** Useful : https://github.com/hpcugent/easybuild/wiki/OS_flavor_name_version
 
         :return: str
         :rtype str
         """
 
-        # Detected
-        detected_dist = None
-
-        # Get
-        cur_linux_distribution = distro.linux_distribution(full_distribution_name=False)
-
-        # Try linux_distribution if required
-        if not detected_dist:
-            try:
-                detected_dist = cur_linux_distribution[0]
-                detected_dist = detected_dist.strip()
-                if len(detected_dist) == 0:
-                    # Reset
-                    detected_dist = None
-            except Exception as e:
-                logger.debug("Ex=%s", SolBase.extostr(e))
-
-        # This is a fallback windows
-        if not detected_dist:
-            # Windows HACK
-            detected_dist = platform.system()
+        try:
+            distro_id = distro.LinuxDistribution().id().strip()
+        except Exception as e:
+            logger.debug("Ex=%s", SolBase.extostr(e))
+            distro_id = None
 
         # Ok
-        return cls._get_distribution_type(detected_dist,  cur_linux_distribution)
+        return cls._get_distribution_type(distro_id)
 
     @classmethod
-    def _get_distribution_type(cls, detected_dist,  cur_linux_distribution):
+    def _get_distribution_type(cls, detected_dist):
         """
         Internal method
         :param detected_dist: str,None
         :type detected_dist: str,None
-        :param cur_linux_distribution: list,tuple, for log only
-        :type cur_linux_distribution: list,tuple
         :return str
         :rtype str
         """
 
         # Check
         if not detected_dist:
-            logger.warning("Unable to detect distribution, fallback debian, got detected_dist=%s, cur_linux_distribution=%s", detected_dist, cur_linux_distribution)
+            logger.warning("Unable to detect distribution, fallback debian, got detected_dist=%s", detected_dist)
             return "debian"
 
         # Lower
@@ -181,7 +164,7 @@ class PlatformTools(object):
             return "windows"
 
         # Fallback
-        logger.warning("Unknown distribution, fallback debian, got detected_dist=%s, cur_linux_distribution=%s", detected_dist, cur_linux_distribution)
+        logger.warning("Unknown distribution, fallback debian, got detected_dist=%s", detected_dist)
         return "debian"
 
     @classmethod

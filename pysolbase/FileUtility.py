@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # ===============================================================================
 #
-# Copyright (C) 2013/2017 Laurent Labatut / Laurent Champagnac
+# Copyright (C) 2013/2025 Laurent Labatut / Laurent Champagnac
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -39,8 +39,8 @@ class FileUtility(object):
     @staticmethod
     def is_path_exist(path_name):
         """
-        Check if a path (file or dir) name exist.
-        :param path_name: Path name.
+        Check if a path (file or dir) name exist
+        :param path_name: Path name
         :type path_name text_type
         :return: Return true (exist), false (do not exist, or invalid file name)
         :rtype bool
@@ -105,7 +105,7 @@ class FileUtility(object):
         Return a file size in bytes.
         :param file_name: File name.
         :type file_name: str
-        :return: An integer, gt-eq 0 if file exist, lt 0 if error.
+        :return: An integer, gt-eq 0 if file exist, lt 0 if error
         :rtype int
         """
         if not FileUtility.is_file_exist(file_name):
@@ -141,7 +141,7 @@ class FileUtility(object):
         # Go
         rd = None
         try:
-            # Open (binary : open return a io.BufferedReader)
+            # Open (binary : open return an io.BufferedReader)
             rd = open(file_name, "rb")
 
             # Read everything
@@ -167,7 +167,7 @@ class FileUtility(object):
         :type file_name: str
         :param encoding: Encoding to use.
         :type encoding: str
-        :return: A text buffer or None in case of error.
+        :return: A text buffer or None in case of error
         :rtype str
         """
 
@@ -179,7 +179,7 @@ class FileUtility(object):
         # Go
         rd = None
         try:
-            # Open (text : open return a io.BufferedReader)
+            # Open (text : open return an io.BufferedReader)
             rd = codecs.open(file_name, "r", encoding, "strict", -1)
 
             # Read everything
@@ -205,14 +205,14 @@ class FileUtility(object):
         :type file_name: str
         :param bin_buf: Binary buffer to write.
         :type bin_buf: bytes
-        :return: The number of bytes written or lt 0 if error.
+        :return: The number of bytes written or lt 0 if error
         :rtype int
         """
 
         # Go
         rd = None
         try:
-            # Open (text : open return a io.BufferedReader)
+            # Open (text : open return an io.BufferedReader)
             rd = open(file_name, "ab+")
 
             # Read everything
@@ -242,14 +242,14 @@ class FileUtility(object):
         :type encoding: str
         :param overwrite: If true, file is overwritten.
         :type overwrite: bool
-        :return: The number of bytes written or lt 0 if error.
+        :return: The number of bytes written or lt 0 if error
         :rtype int
         """
 
         # Go
         rd = None
         try:
-            # Open (text : open return a io.BufferedReader)
+            # Open (text : open return an io.BufferedReader)
             if not overwrite:
                 rd = codecs.open(file_name, "a+", encoding, "strict", -1)
             else:

@@ -16,3 +16,7 @@
 /pysolbase.egg-info/requires.txt
 /pysolbase.egg-info/SOURCES.txt
 /pysolbase.egg-info/top_level.txt
+/.tox/
+/build/
+/pysolbase.egg-info/
+/pysolbase/pysolbase.egg-info/
