@@ -21,11 +21,10 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 # ===============================================================================
 """
-from distutils.core import setup
 
 import re
 
-from setuptools import find_packages
+from setuptools import find_packages, setup
 
 
 def requirement_read(req_file):
@@ -66,8 +65,8 @@ def requirement_read(req_file):
 p_name = "pysolbase"
 p_author = "Laurent Champagnac"
 p_email = "champagnac.laurent@gmail.com"
-p_url = "https://knock.center"
-p_version = "3.11.1"
+p_url = "https://github.com/champax/pysolbase"
+p_version = "3.13.0"
 
 # Load
 req_list, dep_list = requirement_read("requirements.txt")

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # ===============================================================================
 #
-# Copyright (C) 2013/2017 Laurent Labatut / Laurent Champagnac
+# Copyright (C) 2013/2025 Laurent Labatut / Laurent Champagnac
 #
 #
 #
@@ -89,13 +89,13 @@ class TestBase(unittest.TestCase):
 
         ms = SolBase.mscurrent()
         SolBase.sleep(100)
-        # Gevent 1.3 : this is buggy (may be related to https://github.com/gevent/gevent/issues/1227)
+        # Gevent 1.3 : this is buggy (maybe related to https://github.com/gevent/gevent/issues/1227)
         self.assertGreaterEqual(SolBase.msdiff(ms), 100)
         self.assertLessEqual(SolBase.msdiff(ms), 200)
 
         sec = SolBase.securrent()
         SolBase.sleep(1100)
-        # Gevent 1.3 : this is buggy (may be related to https://github.com/gevent/gevent/issues/1227)
+        # Gevent 1.3 : this is buggy (maybe related to https://github.com/gevent/gevent/issues/1227)
         self.assertGreaterEqual(SolBase.msdiff(sec*1000), 1000)
         self.assertLessEqual(SolBase.msdiff(sec*1000), 1200)
 
@@ -113,7 +113,7 @@ class TestBase(unittest.TestCase):
 
         dt = SolBase.datecurrent()
         SolBase.sleep(100)
-        # Gevent 1.3 : this is buggy (may be related to https://github.com/gevent/gevent/issues/1227)
+        # Gevent 1.3 : this is buggy (maybe related to https://github.com/gevent/gevent/issues/1227)
         self.assertGreaterEqual(SolBase.datediff(dt), 100)
         self.assertLessEqual(SolBase.datediff(dt), 200)
 

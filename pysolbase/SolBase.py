@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # ===============================================================================
 #
-# Copyright (C) 2013/2017 Laurent Labatut / Laurent Champagnac
+# Copyright (C) 2013/2025 Laurent Labatut / Laurent Champagnac
 #
 #
 #
@@ -34,7 +34,7 @@ from threading import Lock
 
 import gevent
 import pytz
-from datetime import datetime
+from datetime import datetime, UTC
 
 from gevent import monkey, config
 from yaml import load, SafeLoader
@@ -117,13 +117,15 @@ class SolBase(object):
         """
 
         if erase_mode == 0:
-            return datetime.utcnow()
+            return datetime.now(UTC)
         elif erase_mode == 1:
             # Force precision loss (keep millis, kick micro)
-            dt = datetime.utcnow()
+            dt = datetime.now(UTC)
             return dt.replace(microsecond=int((dt.microsecond * 0.001) * 1000))
         elif erase_mode == 2:
-            return datetime.utcnow().replace(microsecond=0)
+            return datetime.now(UTC).replace(microsecond=0)
+        else:
+            raise Exception("Invalid erase mode=%s" % erase_mode)
 
     @classmethod
     def datediff(cls, dt_start, dt_end=None):
@@ -149,7 +151,7 @@ class SolBase(object):
     # EPOCH / DT
     # ==========================================
 
-    DT_EPOCH = datetime.utcfromtimestamp(0)
+    DT_EPOCH = datetime.fromtimestamp(0, UTC)
 
     @classmethod
     def dt_to_epoch(cls, dt):
@@ -174,7 +176,7 @@ class SolBase(object):
         :rtype datetime
         """
 
-        return datetime.utcfromtimestamp(epoch)
+        return datetime.fromtimestamp(epoch, UTC)
 
     @classmethod
     def dt_is_naive(cls, dt):
@@ -343,7 +345,10 @@ class SolBase(object):
                     cur_frame = cur_frame.f_back
                 else:
                     # Need : tuple : (file, lineno, method, code)
-                    raw_frame.append((cur_frame.f_code.co_filename, cur_frame.f_lineno, cur_frame.f_code.co_name, ""))
+                    st = traceback.StackSummary.from_list(
+                        [traceback.FrameSummary(cur_frame.f_code.co_filename, cur_frame.f_lineno, cur_frame.f_code.co_name)],
+                    )
+                    raw_frame.append(st[0])
                     cur_frame = cur_frame.f_back
 
             # Build it
@@ -435,7 +440,7 @@ class SolBase(object):
                 # Done
                 cls._voodoo_initialized = True
         finally:
-            # If whenever init_logging if set AND it is NOT initialized => we must init it
+            # If whenever init_logging if set AND it is NOT initialized => we must initialize it
             # => we may have been called previously with init_logging=false, but monkey patch is SET and logging not initialized
             # => so it must be init now
             if init_logging and not cls._logging_initialized:
@@ -696,7 +701,7 @@ class SolBase(object):
     @classmethod
     def get_master_process(cls):
         """
-        Return True if we are the master process, False otherwise.
+        Return True if we are the master process, False otherwise
         :return bool
         :rtype bool
         """
@@ -840,10 +845,10 @@ class SolBase(object):
     @classmethod
     def is_int(cls, my_int):
         """
-        Return true if the provided my_int is a integer.
+        Return true if the provided my_int is an integer.
         :param cls: Our class.
         :param my_int: An integer..
-        :return: Return true if the provided my_int is a integer. False otherwise.
+        :return: Return true if the provided my_int is an integer. False otherwise.
         """
         if my_int is None:
             return False

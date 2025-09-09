@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # ===============================================================================
 #
-# Copyright (C) 2013/2017 Laurent Labatut / Laurent Champagnac
+# Copyright (C) 2013/2025 Laurent Labatut / Laurent Champagnac
 #
 #
 #
@@ -34,7 +34,7 @@ class ContextFilter(Filter):
     DOC : https://docs.python.org/3/howto/logging-cookbook.html#adding-contextual-information-to-your-logging-output
     """
 
-    # CAUTION : We must target local here as global (otherwise its a variable local to functions)
+    # CAUTION : We must target local here as global (otherwise it's a variable local to functions)
     LOC = local()
 
     @classmethod
