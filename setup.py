@@ -33,7 +33,7 @@ p_name = "pysolbase"
 p_author = "Laurent Champagnac"
 p_email = "champagnac.laurent@gmail.com"
 p_url = "https://github.com/champax/pysolbase"
-p_version = "3.13.1"
+p_version = "3.13.2"
 
 setup(
 
