@@ -23,15 +23,9 @@ mypkg = [
 [project]
 name = "pysolbase"
 description = "pysolbase"
-version = "3.13.0"
+version = "3.13.1"
 requires-python = ">= 3.11"
-dependencies = [
-    "greenlet",
-    "gevent",
-    "distro",
-    "pytz",
-    "pyyaml",
-]
+dynamic = ["dependencies", "optional-dependencies"]
 readme = "README.md"
 license = "GPL-3.0"
 license-files = ["LICENSE.md"]
@@ -53,6 +47,11 @@ classifiers = [
     "Topic :: Software Development :: Libraries",
     "Natural Language :: English",
 ]
+
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements.txt"] }
+optional-dependencies.test = { file = ["requirements_test.txt"] }
+
 
 [project.urls]
 Homepage = "https://github.com/champax/pysolbase"
