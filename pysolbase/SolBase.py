@@ -34,7 +34,7 @@ from threading import Lock
 
 import gevent
 import pytz
-from datetime import datetime, UTC
+from datetime import datetime, timezone
 
 from gevent import monkey, config
 from yaml import load, SafeLoader
@@ -117,13 +117,13 @@ class SolBase(object):
         """
 
         if erase_mode == 0:
-            return datetime.now(UTC)
+            return datetime.now(timezone.utc)
         elif erase_mode == 1:
             # Force precision loss (keep millis, kick micro)
-            dt = datetime.now(UTC)
+            dt = datetime.now(timezone.utc)
             return dt.replace(microsecond=int((dt.microsecond * 0.001) * 1000))
         elif erase_mode == 2:
-            return datetime.now(UTC).replace(microsecond=0)
+            return datetime.now(timezone.utc).replace(microsecond=0)
         else:
             raise Exception("Invalid erase mode=%s" % erase_mode)
 
@@ -151,7 +151,7 @@ class SolBase(object):
     # EPOCH / DT
     # ==========================================
 
-    DT_EPOCH = datetime.fromtimestamp(0, UTC)
+    DT_EPOCH = datetime.fromtimestamp(0, timezone.utc)
 
     @classmethod
     def dt_to_epoch(cls, dt):
@@ -176,7 +176,7 @@ class SolBase(object):
         :rtype datetime
         """
 
-        return datetime.fromtimestamp(epoch, UTC)
+        return datetime.fromtimestamp(epoch, timezone.utc)
 
     @classmethod
     def dt_is_naive(cls, dt):
