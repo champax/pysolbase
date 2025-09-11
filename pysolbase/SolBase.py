@@ -112,18 +112,18 @@ class SolBase(object):
         """
         Return current date (UTC)
         :param erase_mode: Erase mode (0=nothing, 1=remove microseconds but keep millis, 2=remove millis completely)
-        :return datetime.datetime
+        :return datetime.datetime (naive)
         :rtype datetime.datetime
         """
 
         if erase_mode == 0:
-            return datetime.now(timezone.utc)
+            return datetime.now(timezone.utc).replace(tzinfo=None)
         elif erase_mode == 1:
             # Force precision loss (keep millis, kick micro)
-            dt = datetime.now(timezone.utc)
+            dt = datetime.now(timezone.utc).replace(tzinfo=None)
             return dt.replace(microsecond=int((dt.microsecond * 0.001) * 1000))
         elif erase_mode == 2:
-            return datetime.now(timezone.utc).replace(microsecond=0)
+            return datetime.now(timezone.utc).replace(microsecond=0).replace(tzinfo=None)
         else:
             raise Exception("Invalid erase mode=%s" % erase_mode)
 
@@ -151,7 +151,7 @@ class SolBase(object):
     # EPOCH / DT
     # ==========================================
 
-    DT_EPOCH = datetime.fromtimestamp(0, timezone.utc)
+    DT_EPOCH = datetime.fromtimestamp(0, timezone.utc).replace(tzinfo=None) # Naive
 
     @classmethod
     def dt_to_epoch(cls, dt):
@@ -172,11 +172,11 @@ class SolBase(object):
         Convert an epoch float or int to datetime (UTC)
         :param epoch: float,int
         :type epoch: float,int
-        :return datetime
+        :return datetime (naive)
         :rtype datetime
         """
 
-        return datetime.fromtimestamp(epoch, timezone.utc)
+        return datetime.fromtimestamp(epoch, timezone.utc).replace(tzinfo=None)
 
     @classmethod
     def dt_is_naive(cls, dt):
