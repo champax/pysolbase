@@ -58,7 +58,37 @@ class SysLogger(SysLogHandler):
         self.socktype = socktype
 
         # Base call
-        SysLogHandler.__init__(self, address, facility)
+        SysLogHandler.__init__(self, address=address, facility=facility, socktype=socktype)
+
+    def _ensure_socket(self):
+        """
+        Ensure socket is created and connected.
+        Backward-compatible across Python 3.7, 3.11, and 3.13+.
+        """
+        if self.socket is not None:
+            return
+
+        if hasattr(self, "createSocket"):
+            # Python 3.8+ / 3.10+ / 3.11 / 3.13
+            try:
+                self.createSocket()
+            except OSError:
+                pass
+        elif self.unixsocket:
+            # Python 3.7 unix socket fallback
+            try:
+                self._connect_unixsocket(self.address)
+            except OSError:
+                pass
+        else:
+            # Python 3.7 network socket fallback
+            try:
+                use_socktype = self.socktype if self.socktype is not None else socket.SOCK_DGRAM
+                self.socket = socket.socket(socket.AF_INET, use_socktype)
+                if use_socktype == socket.SOCK_STREAM:
+                    self.socket.connect(self.address)
+            except OSError:
+                pass
 
     def notify_log(self, msg):
         """
@@ -107,17 +137,41 @@ class SysLogger(SysLogHandler):
             self.notify_log(msg)
 
             # Send to socket
+            if self.socket is None:
+                self._ensure_socket()
+
             if self.unixsocket:
                 try:
-                    self.socket.send(msg)
+                    if self.socket is not None:
+                        self.socket.send(msg)
                 except socket.error:
                     # noinspection PyUnresolvedReferences
-                    self._connect_unixsocket(self.address)
-                    self.socket.send(msg)
+                    try:
+                        if self.socket is not None:
+                            self.socket.close()
+                    except Exception:
+                        pass
+                    self.socket = None
+                    self._ensure_socket()
+                    if self.socket is not None:
+                        self.socket.send(msg)
             elif self.socktype == socket.SOCK_DGRAM:
-                self.socket.sendto(msg, self.address)
+                if self.socket is not None:
+                    self.socket.sendto(msg, self.address)
             else:
-                self.socket.sendall(msg)
+                if self.socket is not None:
+                    try:
+                        self.socket.sendall(msg)
+                    except socket.error:
+                        try:
+                            if self.socket is not None:
+                                self.socket.close()
+                        except Exception:
+                            pass
+                        self.socket = None
+                        self._ensure_socket()
+                        if self.socket is not None:
+                            self.socket.sendall(msg)
         except GreenletExit:
             pass
         except (KeyboardInterrupt, SystemExit):

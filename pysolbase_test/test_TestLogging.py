@@ -437,3 +437,44 @@ class TestLogging(unittest.TestCase):
         SolBase.logging_init("INFO", True)
         self.assertEqual(logging.getLevelName(logging.getLogger().getEffectiveLevel()), "INFO")
         self.assertEqual(logging.getLevelName(logging.getLogger("zzz").getEffectiveLevel()), "INFO")
+
+    def test_syslogger_socket_none_resilience(self):
+        """
+        Test that SysLogger handles socket=None gracefully without raising AttributeError.
+        """
+        syslogger = SysLogger(log_callback=self._on_log)
+        try:
+            # Force socket to None to simulate closed/uninitialized socket
+            if syslogger.socket:
+                try:
+                    syslogger.socket.close()
+                except Exception:
+                    pass
+            syslogger.socket = None
+
+            record = logging.LogRecord("test", logging.INFO, "path", 1, "TEST_SOCKET_NONE", (), None)
+            # Must not raise AttributeError: 'NoneType' object has no attribute 'send'
+            syslogger.emit(record)
+        finally:
+            syslogger.close()
+
+    def test_syslogger_nonexistent_address(self):
+        """
+        Test that SysLogger handles a nonexistent socket address without raising AttributeError.
+        """
+        syslogger = SysLogger(address="/tmp/non_existent_syslog_test.sock", log_callback=self._on_log)
+        try:
+            # Ensure socket is None or closed
+            if syslogger.socket:
+                try:
+                    syslogger.socket.close()
+                except Exception:
+                    pass
+                syslogger.socket = None
+
+            record = logging.LogRecord("test", logging.INFO, "path", 1, "TEST_NONEXISTENT", (), None)
+            # Must not raise AttributeError
+            syslogger.emit(record)
+        finally:
+            syslogger.close()
+
